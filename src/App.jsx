@@ -16,6 +16,8 @@ const KM = {
   balance: "សមតុល្យ",
   addTransaction: "បន្ថែមប្រតិបត្តិការ",
   amount: "ចំនួនទឹកប្រាក់",
+  date: "កាលបរិច្ឆេទ",
+  currency: "រូបិយប័ណ្ណ",
   category: "ប្រភេទ",
   note: "កំណត់ចំណាំ",
   save: "រក្សាទុក",
@@ -131,22 +133,22 @@ function formatMoney(n, currency) {
 
 // ── Seed data ────────────────────────────────────────────────────
 const INITIAL_TXNS = [
-  { id:1, type:"income",  amount:250000, currency:"KHR", category:"លក់",    note:"លក់ស្រូវ",      date:"2024-04-10" },
-  { id:2, type:"expense", amount:45000,  currency:"KHR", category:"ជី",     note:"ទិញជីគីមី",      date:"2024-04-08" },
-  { id:3, type:"expense", amount:30000,  currency:"KHR", category:"ការងារ", note:"ប្រាក់ខែកម្មករ", date:"2024-04-06" },
-  { id:4, type:"income",  amount:180000, currency:"KHR", category:"លក់",    note:"លក់បន្លែ",      date:"2024-04-03" },
-  { id:5, type:"expense", amount:15000,  currency:"KHR", category:"ពូជ",    note:"ទិញពូជស្រូវ",    date:"2024-04-01" },
+  { id:1, type:"income",  amount:250000, currency:"KHR", category:"លក់",    note:"លក់ស្រូវ",      date:"2026-04-10" },
+  { id:2, type:"expense", amount:45000,  currency:"KHR", category:"ជី",     note:"ទិញជីគីមី",      date:"2026-04-08" },
+  { id:3, type:"expense", amount:30000,  currency:"KHR", category:"ការងារ", note:"ប្រាក់ខែកម្មករ", date:"2026-04-06" },
+  { id:4, type:"income",  amount:180000, currency:"KHR", category:"លក់",    note:"លក់បន្លែ",      date:"2026-04-03" },
+  { id:5, type:"expense", amount:15000,  currency:"KHR", category:"ពូជ",    note:"ទិញពូជស្រូវ",    date:"2026-04-01" },
 ];
 const INITIAL_ACTS = [
-  { id:1, name:"ដាំស្រូវ",  date:"2024-04-15", type:"ដំណាំ",  done:false },
-  { id:2, name:"ស្រោចទឹក", date:"2024-04-12", type:"ថែទាំ",  done:true  },
-  { id:3, name:"បាញ់ថ្នាំ", date:"2024-04-18", type:"ការពារ", done:false },
-  { id:4, name:"ប្រមូលផល", date:"2024-04-25", type:"ប្រមូល", done:false },
+  { id:1, name:"ដាំស្រូវ",  date:"2026-04-15", type:"ដំណាំ",  done:false },
+  { id:2, name:"ស្រោចទឹក", date:"2026-04-12", type:"ថែទាំ",  done:true  },
+  { id:3, name:"បាញ់ថ្នាំ", date:"2026-04-18", type:"ការពារ", done:false },
+  { id:4, name:"ប្រមូលផល", date:"2026-04-25", type:"ប្រមូល", done:false },
 ];
 const INITIAL_ENTRIES = [
-  { id:1, date:"2024-04-11", weather:"☀️", content:"ថ្ងៃនេះ ដាំស្រូវ ក្នុងផ្លូវ ១ ហ្គិចដ ទឹកហូរ ល្អ ។" },
-  { id:2, date:"2024-04-09", weather:"🌧️", content:"ភ្លៀង ៣ ម៉ោង ដំណើរការ ល្អ ។ ស្រូវ ងើបឡើង ។" },
-  { id:3, date:"2024-04-07", weather:"⛅", content:"បន្ថែមជី ម្ដង ទៀត ។ ស្លឹក ក្រហម ខ្លះ ត្រូវ ប្រុងប្រយ័ត្ន ។" },
+  { id:1, date:"2026-04-11", weather:"☀️", content:"ថ្ងៃនេះ ដាំស្រូវ ក្នុងផ្លូវ ១ ហ្គិចដ ទឹកហូរ ល្អ ។" },
+  { id:2, date:"2026-04-09", weather:"🌧️", content:"ភ្លៀង ៣ ម៉ោង ដំណើរការ ល្អ ។ ស្រូវ ងើបឡើង ។" },
+  { id:3, date:"2026-04-07", weather:"⛅", content:"បន្ថែមជី ម្ដង ទៀត ។ ស្លឹក ក្រហម ខ្លះ ត្រូវ ប្រុងប្រយ័ត្ន ។" },
 ];
 
 // ── Persistence hook ────────────────────────────────────────────
@@ -160,7 +162,7 @@ function usePersistedState(key, initial) {
     }
   });
   useEffect(() => {
-    try { localStorage.setItem(key, JSON.stringify(value)); } catch {}
+    try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* ignore */ }
   }, [key, value]);
   return [value, setValue];
 }
@@ -257,7 +259,8 @@ function Onboarding({ onDone }) {
 function Finance({ txns, setTxns, currency, setCurrency }) {
   const [filter, setFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ type:"income", amount:"", category:"លក់", note:"" });
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const [form, setForm] = useState({ type:"income", amount:"", inputCurrency:"KHR", date:todayStr, category:"លក់", note:"" });
 
   const fmt = (n) => formatMoney(n, currency);
   const totalIncome  = txns.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0);
@@ -267,9 +270,12 @@ function Finance({ txns, setTxns, currency, setCurrency }) {
 
   function addTxn() {
     if (!form.amount) return;
-    setTxns(p => [...p, { id:Date.now(), type:form.type, amount:Number(form.amount), currency:"KHR", category:form.category, note:form.note || "—", date:new Date().toISOString().slice(0,10) }]);
+    const rawAmount = Number(form.amount);
+    if (!Number.isFinite(rawAmount) || rawAmount <= 0) return;
+    const amountKHR = form.inputCurrency === "USD" ? rawAmount * USD_RATE : rawAmount;
+    setTxns(p => [...p, { id:Date.now(), type:form.type, amount:amountKHR, currency:form.inputCurrency, category:form.category, note:form.note || "—", date:form.date || todayStr }]);
     setShowForm(false);
-    setForm({ type:"income", amount:"", category:"លក់", note:"" });
+    setForm({ type:"income", amount:"", inputCurrency:"KHR", date:todayStr, category:"លក់", note:"" });
   }
 
   return (
@@ -336,6 +342,21 @@ function Finance({ txns, setTxns, currency, setCurrency }) {
                 style={{ flex:1, padding:"9px", borderRadius:10, border:`1.5px solid ${form.type===k?G[600]:GR[200]}`, background:form.type===k?G[50]:AppColors.surface, color:form.type===k?G[700]:GR[600], fontSize:13, cursor:"pointer", fontFamily:"inherit", fontWeight:form.type===k?600:400 }}>{l}</button>
             ))}
           </div>
+          <div style={{ display:"flex", gap:8 }}>
+            <div style={{ flex:1, display:"flex", flexDirection:"column", gap:6 }}>
+              <div style={{ fontSize:12, color:GR[500], fontWeight:600 }}>{KM.date}</div>
+              <input type="date" value={form.date} onChange={e=>setForm(f=>({...f,date:e.target.value}))} style={inputStyle} />
+            </div>
+            <div style={{ flex:1, display:"flex", flexDirection:"column", gap:6 }}>
+              <div style={{ fontSize:12, color:GR[500], fontWeight:600 }}>{KM.currency}</div>
+              <div style={{ display:"flex", gap:6 }}>
+                {["KHR","USD"].map(c => (
+                  <button key={c} onClick={()=>setForm(f=>({...f,inputCurrency:c}))}
+                    style={{ flex:1, fontSize:12, padding:"9px 10px", borderRadius:10, border:`1.5px solid ${form.inputCurrency===c?G[600]:GR[200]}`, background:form.inputCurrency===c?G[50]:AppColors.surface, color:form.inputCurrency===c?G[700]:GR[600], cursor:"pointer", fontWeight:form.inputCurrency===c?600:400, fontFamily:"inherit" }}>{c}</button>
+                ))}
+              </div>
+            </div>
+          </div>
           <input placeholder={KM.amount} type="number" value={form.amount} onChange={e=>setForm(f=>({...f,amount:e.target.value}))} style={inputStyle} />
           <select value={form.category} onChange={e=>setForm(f=>({...f,category:e.target.value}))} style={selectStyle}>
             {KM.categories.map(c=><option key={c}>{c}</option>)}
@@ -362,15 +383,27 @@ function CalendarTab({ activities, setActivities }) {
 
   const daysInMonth = new Date(year, month+1, 0).getDate();
   const firstDay    = new Date(year, month, 1).getDay();
-  const actDates    = new Set(activities.map(a => new Date(a.date).getDate()));
   const selStr      = `${year}-${String(month+1).padStart(2,"0")}-${String(selected).padStart(2,"0")}`;
+  const actDates    = new Set(
+    activities
+      .filter(a => {
+        const d = new Date(a.date);
+        return d.getFullYear() === year && d.getMonth() === month;
+      })
+      .map(a => new Date(a.date).getDate())
+  );
   const selActs     = activities.filter(a => a.date === selStr);
+
+  function openForm() {
+    setShowForm(true);
+    setForm({ name:"", date:selStr, type:"ដំណាំ" });
+  }
 
   function addActivity() {
     if (!form.name || !form.date) return;
     setActivities(p => [...p, { id:Date.now(), ...form, done:false }]);
     setShowForm(false);
-    setForm({ name:"", date:"", type:"ដំណាំ" });
+    setForm({ name:"", date:selStr, type:"ដំណាំ" });
   }
 
   return (
@@ -387,7 +420,7 @@ function CalendarTab({ activities, setActivities }) {
           {Array(firstDay).fill(null).map((_,i) => <div key={"e"+i} />)}
           {Array(daysInMonth).fill(null).map((_,i) => {
             const d = i+1;
-            const isToday = d===today.getDate() && month===today.getMonth();
+            const isToday = d===today.getDate() && month===today.getMonth() && year===today.getFullYear();
             const isSel   = d===selected;
             const hasDot  = actDates.has(d);
             return (
@@ -402,7 +435,7 @@ function CalendarTab({ activities, setActivities }) {
         </div>
       </div>
 
-      <div style={{ fontWeight:600, color:GR[700], fontSize:13, marginBottom:8 }}>{KM.months[month]} {selected}</div>
+      <div style={{ fontWeight:600, color:GR[700], fontSize:13, marginBottom:8 }}>{KM.months[month]} {selected}, {year}</div>
       {selActs.length === 0 && <div style={{ color:GR[400], fontSize:13, textAlign:"center", padding:"20px 0" }}>{KM.noData}</div>}
       {selActs.map(a => (
         <div key={a.id} style={{ background:AppColors.surface, borderRadius:12, padding:"12px 14px", marginBottom:8, display:"flex", justifyContent:"space-between", alignItems:"center", border:`1px solid ${GR[200]}` }}>
@@ -422,7 +455,7 @@ function CalendarTab({ activities, setActivities }) {
       {showForm && (
         <BottomSheet onClose={()=>setShowForm(false)} title={KM.addActivity}>
           <input placeholder={KM.activityName} value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} style={inputStyle} />
-          <input type="date" value={form.date} onChange={e=>setForm(f=>({...f,date:e.target.value}))} style={inputStyle} />
+          <input type="date" value={form.date || selStr} onChange={e=>setForm(f=>({...f,date:e.target.value}))} style={inputStyle} />
           <select value={form.type} onChange={e=>setForm(f=>({...f,type:e.target.value}))} style={selectStyle}>
             {["ដំណាំ","ថែទាំ","ការពារ","ប្រមូល"].map(t=><option key={t}>{t}</option>)}
           </select>
@@ -431,7 +464,7 @@ function CalendarTab({ activities, setActivities }) {
       )}
 
       <div style={{ height:80 }} />
-      <FAB onClick={()=>setShowForm(true)} />
+      <FAB onClick={openForm} />
     </div>
   );
 }
