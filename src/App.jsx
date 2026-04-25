@@ -8,7 +8,6 @@ const KM = {
   tabFinance: "ហិរញ្ញវត្ថុ",
   tabCalendar: "ប្រតិទិន",
   tabGuide: "មគ្គុទ្ទេសក៍",
-  tabJournal: "កំណត់ហេតុ",
   tabSettings: "ការកំណត់",
   all: "ទាំងអស់",
   income: "ចំណូល",
@@ -27,9 +26,6 @@ const KM = {
   addActivity: "បន្ថែមសកម្មភាព",
   activityName: "ឈ្មោះសកម្មភាព",
   noData: "មិនមានទិន្នន័យ",
-  addEntry: "បន្ថែមកំណត់ហេតុ",
-  content: "មាតិកា",
-  weather: "អាកាសធាតុ",
   symptoms: "រោគសញ្ញា",
   treatment: "វិធីព្យាបាល",
   prevention: "វិធីការពារ",
@@ -49,7 +45,6 @@ const KM = {
   dataStats: "ស្ថិតិទិន្នន័យ",
   transactions: "ប្រតិបត្តិការ",
   activities: "សកម្មភាព",
-  journalEntries: "កំណត់ហេតុ",
   preferences: "ចំណូលចិត្ត",
   theme: "រចនាបថ",
   themeLight: "ភ្លឺ",
@@ -145,12 +140,6 @@ const INITIAL_ACTS = [
   { id:3, name:"បាញ់ថ្នាំ", date:"2026-04-18", type:"ការពារ", done:false },
   { id:4, name:"ប្រមូលផល", date:"2026-04-25", type:"ប្រមូល", done:false },
 ];
-const INITIAL_ENTRIES = [
-  { id:1, date:"2026-04-11", weather:"☀️", content:"ថ្ងៃនេះ ដាំស្រូវ ក្នុងផ្លូវ ១ ហ្គិចដ ទឹកហូរ ល្អ ។" },
-  { id:2, date:"2026-04-09", weather:"🌧️", content:"ភ្លៀង ៣ ម៉ោង ដំណើរការ ល្អ ។ ស្រូវ ងើបឡើង ។" },
-  { id:3, date:"2026-04-07", weather:"⛅", content:"បន្ថែមជី ម្ដង ទៀត ។ ស្លឹក ក្រហម ខ្លះ ត្រូវ ប្រុងប្រយ័ត្ន ។" },
-];
-
 // ── Persistence hook ────────────────────────────────────────────
 function usePersistedState(key, initial) {
   const [value, setValue] = useState(() => {
@@ -181,10 +170,6 @@ const selectStyle = {
   backgroundRepeat:"no-repeat", backgroundPosition:"right 12px center",
   paddingRight:32,
 };
-const textareaStyle = {
-  ...inputStyle, resize:"none", lineHeight:1.6,
-};
-
 // Bottom sheet modal wrapper
 function BottomSheet({ onClose, title, children }) {
   return (
@@ -541,60 +526,6 @@ function Guide() {
   );
 }
 
-// ── JOURNAL ─────────────────────────────────────────────────────
-function Journal({ entries, setEntries }) {
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ content:"", weather:"☀️" });
-  const weathers = ["☀️","🌧️","⛅","💨"];
-
-  function addEntry() {
-    if (!form.content) return;
-    setEntries(p => [{ id:Date.now(), date:new Date().toISOString().slice(0,10), ...form }, ...p]);
-    setShowForm(false);
-    setForm({ content:"", weather:"☀️" });
-  }
-
-  return (
-    <div style={{ flex:1, overflowY:"auto", background:GR[50], padding:"12px", position:"relative" }}>
-      <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-        {entries.map(e => (
-          <div key={e.id} style={{ background:AppColors.surface, borderRadius:14, padding:"14px", border:`1px solid ${GR[200]}` }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:8 }}>
-              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                <span style={{ fontSize:22 }}>{e.weather}</span>
-                <span style={{ fontSize:12, color:GR[400] }}>{e.date}</span>
-              </div>
-              <button onClick={()=>setEntries(p=>p.filter(x=>x.id!==e.id))}
-                style={{ fontSize:13, color:DANGER.main, background:"none", border:"none", cursor:"pointer" }}>✕</button>
-            </div>
-            <div style={{ fontSize:13, color:GR[700], lineHeight:1.75 }}>{e.content}</div>
-          </div>
-        ))}
-      </div>
-
-      {showForm && (
-        <BottomSheet onClose={()=>setShowForm(false)} title={KM.addEntry}>
-          <div>
-            <div style={{ fontSize:12, color:GR[600], marginBottom:8 }}>{KM.weather}</div>
-            <div style={{ display:"flex", gap:8 }}>
-              {weathers.map(w => (
-                <button key={w} onClick={()=>setForm(f=>({...f,weather:w}))}
-                  style={{ fontSize:22, background:form.weather===w?G[50]:AppColors.surface, border:`1.5px solid ${form.weather===w?G[500]:GR[200]}`, borderRadius:10, padding:"6px 10px", cursor:"pointer", lineHeight:1 }}>{w}</button>
-              ))}
-            </div>
-          </div>
-          <textarea placeholder={KM.content} value={form.content} onChange={e=>setForm(f=>({...f,content:e.target.value}))}
-            rows={4} style={textareaStyle} />
-          <ActionRow onCancel={()=>setShowForm(false)} onSave={addEntry} />
-        </BottomSheet>
-      )}
-
-      <div style={{ height:80 }} />
-      <FAB onClick={()=>setShowForm(true)} />
-    </div>
-  );
-}
-
 // ── SETTINGS (Reports, Export, Backup/Restore) ──────────────────
 function downloadFile(filename, content, mime) {
   const blob = new Blob([content], { type: mime });
@@ -640,7 +571,7 @@ function SettingsBtn({ onClick, label, icon, danger }) {
   );
 }
 
-function Settings({ txns, activities, entries, setTxns, setActivities, setEntries, theme, setTheme }) {
+function Settings({ txns, activities, setTxns, setActivities, theme, setTheme }) {
   function exportTxnsCSV() {
     const header = "date,type,amount,currency,category,note\n";
     const rows = txns.map(t => [t.date,t.type,t.amount,t.currency,t.category,t.note].map(csvEscape).join(",")).join("\n");
@@ -652,7 +583,7 @@ function Settings({ txns, activities, entries, setTxns, setActivities, setEntrie
       app: "smartfarm",
       version: 1,
       exportedAt: new Date().toISOString(),
-      txns, activities, entries,
+      txns, activities,
     };
     downloadFile(`smartfarm-backup-${new Date().toISOString().slice(0,10)}.json`, JSON.stringify(data, null, 2), "application/json");
   }
@@ -668,7 +599,6 @@ function Settings({ txns, activities, entries, setTxns, setActivities, setEntrie
         const d = JSON.parse(ev.target.result);
         if (Array.isArray(d.txns)) setTxns(d.txns);
         if (Array.isArray(d.activities)) setActivities(d.activities);
-        if (Array.isArray(d.entries)) setEntries(d.entries);
         window.alert(KM.restoreSuccess);
       } catch {
         window.alert(KM.restoreFail);
@@ -681,7 +611,6 @@ function Settings({ txns, activities, entries, setTxns, setActivities, setEntrie
     if (!window.confirm(KM.clearConfirm)) return;
     setTxns([]);
     setActivities([]);
-    setEntries([]);
   }
 
   return (
@@ -713,7 +642,6 @@ function Settings({ txns, activities, entries, setTxns, setActivities, setEntrie
           {[
             [txns.length, KM.transactions],
             [activities.length, KM.activities],
-            [entries.length, KM.journalEntries],
           ].map(([n, l], i) => (
             <div key={i} style={{ flex:1, padding:"10px", background:GR[50], borderRadius:10, textAlign:"center" }}>
               <div style={{ fontSize:18, fontWeight:700, color:G[700] }}>{n}</div>
@@ -755,7 +683,6 @@ export default function App() {
   const [tab, setTab] = useState(0);
   const [txns, setTxns] = usePersistedState("sf_txns", INITIAL_TXNS);
   const [activities, setActivities] = usePersistedState("sf_acts", INITIAL_ACTS);
-  const [entries, setEntries] = usePersistedState("sf_entries", INITIAL_ENTRIES);
   const [currency, setCurrency] = usePersistedState("sf_currency", "KHR");
   const [theme, setTheme] = usePersistedState("sf_theme", "light");
 
@@ -767,8 +694,7 @@ export default function App() {
     { label:KM.tabFinance,  icon:"💰", comp:<Finance txns={txns} setTxns={setTxns} currency={currency} setCurrency={setCurrency} /> },
     { label:KM.tabCalendar, icon:"📅", comp:<CalendarTab activities={activities} setActivities={setActivities} /> },
     { label:KM.tabGuide,    icon:"📖", comp:<Guide /> },
-    { label:KM.tabJournal,  icon:"📓", comp:<Journal entries={entries} setEntries={setEntries} /> },
-    { label:KM.tabSettings, icon:"⚙️", comp:<Settings txns={txns} activities={activities} entries={entries} setTxns={setTxns} setActivities={setActivities} setEntries={setEntries} theme={theme} setTheme={setTheme} /> },
+    { label:KM.tabSettings, icon:"⚙️", comp:<Settings txns={txns} activities={activities} setTxns={setTxns} setActivities={setActivities} theme={theme} setTheme={setTheme} /> },
   ];
 
   return (
