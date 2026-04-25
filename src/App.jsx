@@ -221,7 +221,7 @@ function Splash({ onDone }) {
     const t1 = setTimeout(() => setVis(true), 100);
     const t2 = setTimeout(() => onDone(), 2400);
     return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
+  }, [onDone]);
   return (
     <div style={{ flex:1, background:G[600], display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:20 }}>
       <div style={{ fontSize:72, lineHeight:1, height:88, display:"flex", alignItems:"center", justifyContent:"center", transform:vis?"scale(1)":"scale(0.4)", opacity:vis?1:0, transition:"all 0.65s cubic-bezier(.34,1.56,.64,1)" }}>🌱</div>
