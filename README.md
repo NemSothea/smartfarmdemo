@@ -1,25 +1,65 @@
-# React + Vite
+# SmartFarm — កសិកម្មឆ្លាតវៃ ងាយស្រួល
+
+An offline-first farm-management demo designed for Cambodian small-scale farmers. SmartFarm bundles finance tracking, an activity calendar, an offline pest & disease guide, and backup/restore tools into a single Khmer-language interface.
 
 **Live demo:** https://nemsothea.github.io/smartfarmdemo/
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Pitch deck:** https://docs.google.com/presentation/d/1n3ROa-Cp5QTVe4Zn2yL60gpJ9mYfBeYU/edit?usp=sharing&ouid=103841083623835396121&rtpof=true&sd=true
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Screenshots
 
-## React Compiler
+| Splash | Onboarding | Finance |
+|:--:|:--:|:--:|
+| ![Splash screen](images/Splashscreen.png) | ![Intro screen](images/Introscreen.png) | ![Finance tab](images/FinanceTap.png) |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Calendar | Pest & Disease | Settings |
+|:--:|:--:|:--:|
+| ![Calendar tab](images/CalendarTab.png) | ![Pest & Disease tab](images/PestDeseaseTab.png) | ![Settings tab](images/SettingTap.png) |
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Features
+
+- **ហិរញ្ញវត្ថុ — Finance tracker:** income/expense entries with category filters, KHR/USD toggle, and live balance/profit summaries.
+- **ប្រតិទិន — Calendar & reminders:** monthly grid with activity markers, per-day task list, and completion toggles.
+- **មគ្គុទ្ទេសក៍ — Pest & disease guide:** searchable, fully offline reference library grouped by Insects / Fungal / Bacterial.
+- **ការកំណត់ — Settings:** light/dark theme, data stats, CSV export, JSON backup & restore, and full data wipe.
+- **Khmer-first UI** with Cambodian-friendly currency formatting.
+- **Offline by design** — no network calls for core features.
+
+---
+
+## Tech stack
+
+- React + Vite (web demo)
+- Plain CSS, no UI framework
+- Deployed to GitHub Pages via GitHub Actions
+
+The product roadmap and module breakdown for the iOS/SwiftUI build live in [`READMEPLAN.md`](./READMEPLAN.md).
+
+---
+
+## Local development
+
+```bash
+npm install
+npm run dev
+```
+
+Build for production:
+
+```bash
+npm run build
+npm run preview
+```
+
+---
 
 ## Deployment (GitHub Pages)
 
-This repo is set up to deploy `main` to GitHub Pages via GitHub Actions.
+This repo deploys `main` to GitHub Pages via GitHub Actions.
 
 1. In GitHub: **Settings → Pages → Build and deployment → Source: GitHub Actions**
 2. Push to `main` (or run the **Deploy to GitHub Pages** workflow manually)
