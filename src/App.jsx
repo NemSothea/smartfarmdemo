@@ -7,7 +7,6 @@ const KM = {
   getStarted: "ចាប់ផ្តើម",
   tabFinance: "ហិរញ្ញវត្ថុ",
   tabCalendar: "ប្រតិទិន",
-  tabGuide: "មគ្គុទ្ទេសក៍",
   tabSettings: "ការកំណត់",
   all: "ទាំងអស់",
   income: "ចំណូល",
@@ -22,16 +21,9 @@ const KM = {
   save: "រក្សាទុក",
   cancel: "បោះបង់",
   delete: "លុប",
-  search: "ស្វែងរក...",
   addActivity: "បន្ថែមសកម្មភាព",
   activityName: "ឈ្មោះសកម្មភាព",
   noData: "មិនមានទិន្នន័យ",
-  symptoms: "រោគសញ្ញា",
-  treatment: "វិធីព្យាបាល",
-  prevention: "វិធីការពារ",
-  insects: "សត្វល្អិត",
-  fungal: "ផ្សិត",
-  bacterial: "បាក់តេរី",
   dataExport: "នាំចេញទិន្នន័យ",
   exportTxnsCSV: "នាំចេញប្រតិបត្តិការ (CSV)",
   backupRestore: "បម្រុងទុក & ស្ដារ",
@@ -454,78 +446,6 @@ function CalendarTab({ activities, setActivities }) {
   );
 }
 
-// ── GUIDE ───────────────────────────────────────────────────────
-const pests = [
-  { id:1, name:"ដង្កូវស្រូវ", cat:"insects",  symptoms:"ស្លឹកលឿង ជ្រួញ",         treatment:"បាញ់ថ្នាំ Chlorpyrifos", prevention:"សំអាតស្មៅ ជុំវិញចំការ" },
-  { id:2, name:"ផ្សិតស្លឹក",  cat:"fungal",   symptoms:"មានប្រណំ ខ្មៅ នៅស្លឹក",    treatment:"បាញ់ថ្នាំ Mancozeb",     prevention:"មិនត្រូវស្រោចច្រើន" },
-  { id:3, name:"រោគប្លែក",   cat:"bacterial", symptoms:"ស្លឹករោយ ស្លាប",           treatment:"កាប់ចោល ដុត",            prevention:"ប្រើពូជធន់" },
-  { id:4, name:"ចៃស្រូវ",    cat:"insects",  symptoms:"ស្លឹកស្ងួត ឡើងក្រហម",     treatment:"ចូរដើរ ចាប់",             prevention:"ដុះស្មៅ គ្របដំណាំ" },
-  { id:5, name:"ផ្សិតរាក",   cat:"fungal",   symptoms:"ដើមមាន ក្រហម ធ្លាក់",      treatment:"ព្យាបាលដី Trichoderma",   prevention:"ប្តូរដំណាំ" },
-  { id:6, name:"ជំងឺខ្ចី",   cat:"bacterial", symptoms:"ផ្លែស្ងួត មិនធំ",          treatment:"ដករំលោភ ដុត",             prevention:"ស្ទូចត្រឹមត្រូវ" },
-  { id:7, name:"ក្រញ៉ូន",    cat:"insects",  symptoms:"ស្លឹកដូច ត្របក",           treatment:"បាញ់ Imidacloprid",       prevention:"ហ្វឹកហាត់ ស្ទូច" },
-  { id:8, name:"ផ្សិតស្រូវ", cat:"fungal",   symptoms:"គ្រាប់ស្រូវ ខ្មៅ",         treatment:"ព្យាបាលពូជ ថ្នាំ",         prevention:"ប្រើពូជ ស្អាត" },
-];
-
-function Guide() {
-  const [cat, setCat]       = useState("all");
-  const [query, setQuery]   = useState("");
-  const [selected, setSelected] = useState(null);
-  const [expanded, setExpanded] = useState({});
-
-  const cats = [["all",KM.all],["insects",KM.insects],["fungal",KM.fungal],["bacterial",KM.bacterial]];
-  const filtered = pests.filter(p => (cat==="all"||p.cat===cat) && (!query||p.name.includes(query)));
-
-  if (selected) {
-    const sections = [["symptoms",KM.symptoms,selected.symptoms],["treatment",KM.treatment,selected.treatment],["prevention",KM.prevention,selected.prevention]];
-    return (
-      <div style={{ flex:1, overflowY:"auto", background:GR[50], padding:"12px" }}>
-        <button onClick={()=>{ setSelected(null); setExpanded({}); }}
-          style={{ background:"none", border:"none", color:G[600], fontSize:14, cursor:"pointer", marginBottom:10, padding:0, fontFamily:"inherit", display:"flex", alignItems:"center", gap:4 }}>← ត្រឡប់</button>
-        <div style={{ background:AppColors.surface, borderRadius:14, padding:"16px", border:`1px solid ${GR[200]}`, marginBottom:12 }}>
-          <div style={{ fontSize:20, fontWeight:700, color:GR[800], marginBottom:8 }}>{selected.name}</div>
-          <span style={{ fontSize:11, background:SEC[50], color:SEC[700], padding:"3px 10px", borderRadius:20 }}>
-            {cats.find(c=>c[0]===selected.cat)?.[1]}
-          </span>
-        </div>
-        {sections.map(([key,label,text]) => (
-          <div key={key} style={{ background:AppColors.surface, borderRadius:12, marginBottom:8, border:`1px solid ${GR[200]}`, overflow:"hidden" }}>
-            <button onClick={()=>setExpanded(e=>({...e,[key]:!e[key]}))}
-              style={{ width:"100%", padding:"12px 14px", background:"none", border:"none", display:"flex", justifyContent:"space-between", cursor:"pointer", fontSize:13, fontWeight:600, color:GR[800], fontFamily:"inherit" }}>
-              {label} <span style={{ color:GR[400], fontSize:12 }}>{expanded[key]?"▲":"▼"}</span>
-            </button>
-            {expanded[key] && <div style={{ padding:"0 14px 12px", fontSize:13, color:GR[700], lineHeight:1.7 }}>{text}</div>}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ flex:1, overflowY:"auto", background:GR[50], padding:"12px" }}>
-      <input value={query} onChange={e=>setQuery(e.target.value)} placeholder={KM.search}
-        style={{ ...inputStyle, marginBottom:10 }} />
-      <div style={{ display:"flex", gap:6, marginBottom:12, overflowX:"auto", paddingBottom:2 }}>
-        {cats.map(([k,l]) => (
-          <button key={k} onClick={()=>setCat(k)}
-            style={{ whiteSpace:"nowrap", fontSize:12, padding:"5px 12px", borderRadius:20, border:`1px solid ${cat===k?G[600]:GR[200]}`, background:cat===k?G[100]:AppColors.surface, color:cat===k?G[700]:GR[600], cursor:"pointer", fontFamily:"inherit" }}>{l}</button>
-        ))}
-      </div>
-      <div style={{ display:"flex", flexDirection:"column", gap:8 }}>
-        {filtered.map(p => (
-          <div key={p.id} onClick={()=>setSelected(p)}
-            style={{ background:AppColors.surface, borderRadius:12, padding:"12px 14px", display:"flex", justifyContent:"space-between", alignItems:"center", border:`1px solid ${GR[200]}`, cursor:"pointer" }}>
-            <div>
-              <div style={{ fontSize:13, fontWeight:600, color:GR[800] }}>{p.name}</div>
-              <div style={{ fontSize:11, color:GR[400], marginTop:2 }}>{cats.find(c=>c[0]===p.cat)?.[1]}</div>
-            </div>
-            <span style={{ color:GR[400], fontSize:18 }}>›</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // ── SETTINGS (Reports, Export, Backup/Restore) ──────────────────
 function downloadFile(filename, content, mime) {
   const blob = new Blob([content], { type: mime });
@@ -693,7 +613,6 @@ export default function App() {
   const tabs = [
     { label:KM.tabFinance,  icon:"💰", comp:<Finance txns={txns} setTxns={setTxns} currency={currency} setCurrency={setCurrency} /> },
     { label:KM.tabCalendar, icon:"📅", comp:<CalendarTab activities={activities} setActivities={setActivities} /> },
-    { label:KM.tabGuide,    icon:"📖", comp:<Guide /> },
     { label:KM.tabSettings, icon:"⚙️", comp:<Settings txns={txns} activities={activities} setTxns={setTxns} setActivities={setActivities} theme={theme} setTheme={setTheme} /> },
   ];
 

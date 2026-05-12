@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ស្មាតហ្វាម</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">ផ្ទាំងគ្រប់គ្រង</string>
+    <string name="nav_finance">ហិរញ្ញវត្ថុ</string>
+    <string name="nav_calendar">ប្រតិទិន</string>
+    <string name="nav_settings">ការកំណត់</string>
+
+    <!-- Finance -->
+    <string name="income">ចំណូល</string>
+    <string name="expense">ចំណាយ</string>
+    <string name="balance">តុល្យភាព</string>
+    <string name="finance_summary">សង្ខេបហិរញ្ញវត្ថុ</string>
+    <string name="add_entry">បន្ថែមធាតុ</string>
+    <string name="title">ចំណងជើង</string>
+    <string name="amount">ចំនួនទឹកប្រាក់</string>
+    <string name="amount_khr">ចំនួនទឹកប្រាក់ (KHR)</string>
+    <string name="category">ប្រភេទ</string>
+    <string name="note">កំណត់ចំណាំ</string>
+    <string name="monthly_chart">ក្រាហ្វប្រចាំខែ (៦ ខែចុងក្រោយ)</string>
+
+    <!-- Calendar -->
+    <string name="add_event">បន្ថែមព្រឹត្តិការណ៍</string>
+    <string name="activity_type">ប្រភេទសកម្មភាព</string>
+    <string name="description">ការពិពណ៌នា</string>
+    <string name="set_reminder">កំណត់ការរំលឹក</string>
+    <string name="no_events">មិនទាន់មានព្រឹត្តិការណ៍។ ចុច + ដើម្បីបន្ថែម។</string>
+    <string name="no_events_today">គ្មានសកម្មភាពថ្ងៃនេះ</string>
+
+    <!-- Dashboard -->
+    <string name="upcoming_events">ព្រឹត្តិការណ៍ខាងមុខ (៧ ថ្ងៃ)</string>
+    <string name="no_upcoming_events">មិនមានព្រឹត្តិការណ៍នៅសប្ដាហ៍នេះ។</string>
+
+    <!-- Settings -->
+    <string name="section_export">ជំរើសសំណួរ</string>
+    <string name="export_csv">ส่งออកជា CSV</string>
+    <string name="export_csv_sub">ហិរញ្ញវត្ថុទាំងអស់ → Excel / Sheets</string>
+    <string name="export_pdf">ส่งออក PDF Report</string>
+    <string name="export_pdf_sub">របាយការណ៍ PDF ប្រចាំខែ</string>
+    <string name="section_backup">ការបម្រុងទុក</string>
+    <string name="backup_export">Export JSON Backup</string>
+    <string name="backup_export_sub">រក្សាទុកទិន្នន័យទាំងអស់ជា JSON</string>
+    <string name="backup_restore">Restore from Backup</string>
+    <string name="backup_restore_sub">ស្ដារទិន្នន័យពី JSON backup</string>
+    <string name="section_stats">ស្ថិតិ</string>
+    <string name="stat_transactions">ប្រតិបត្តិការ</string>
+    <string name="stat_activities">សកម្មភាព</string>
+    <string name="restore_confirm_title">Restore Backup?</string>
+    <string name="restore_confirm_body">ទិន្នន័យបច្ចុប្បន្នទាំងអស់នឹងត្រូវជំនួស។ តើអ្នកប្រាកដទេ?</string>
+    <string name="restore">ស្ដារ</string>
+
+    <!-- Edit -->
+    <string name="edit_entry">កែប្រែធាតុ</string>
+    <string name="edit_event">កែប្រែព្រឹត្តិការណ៍</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title_1">ស្វាគមន៍មកកាន់\nSmartFarm</string>
+    <string name="onboarding_sub_1">ជំនួយការគ្រប់គ្រងកសិដ្ឋាន\nសម្រាប់កសិករខ្មែរ</string>
+    <string name="onboarding_title_2">ហិរញ្ញវត្ថុ &amp; ប្រតិទិន</string>
+    <string name="onboarding_sub_2">តាមដានចំណូល ចំណាយ\nនិងសកម្មភាពកសិកម្មប្រចាំថ្ងៃ</string>
+    <string name="onboarding_title_3">ឯកជន &amp; Offline</string>
+    <string name="onboarding_sub_3">ទិន្នន័យទាំងអស់ត្រូវបានរក្សាទុក\nក្នុងឧបករណ៍របស់អ្នក</string>
+    <string name="onboarding_next">បន្ទាប់</string>
+    <string name="onboarding_start">ចាប់ផ្ដើម</string>
+
+    <!-- Common -->
+    <string name="save">រក្សាទុក</string>
+    <string name="cancel">បោះបង់</string>
+    <string name="delete">លុប</string>
+</resources>

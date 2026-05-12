@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SmartFarm</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_finance">Finance</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Finance -->
+    <string name="income">Income</string>
+    <string name="expense">Expense</string>
+    <string name="balance">Balance</string>
+    <string name="finance_summary">Finance Summary</string>
+    <string name="add_entry">Add Entry</string>
+    <string name="title">Title</string>
+    <string name="amount">Amount</string>
+    <string name="amount_khr">Amount (KHR)</string>
+    <string name="category">Category</string>
+    <string name="note">Note</string>
+    <string name="monthly_chart">Monthly Chart (last 6 months)</string>
+
+    <!-- Calendar -->
+    <string name="add_event">Add Event</string>
+    <string name="activity_type">Activity Type</string>
+    <string name="description">Description</string>
+    <string name="set_reminder">Set Reminder</string>
+    <string name="no_events">No events yet. Tap + to add one.</string>
+    <string name="no_events_today">No activities today</string>
+
+    <!-- Dashboard -->
+    <string name="upcoming_events">Upcoming Events (7 days)</string>
+    <string name="no_upcoming_events">No upcoming events this week.</string>
+
+    <!-- Settings -->
+    <string name="section_export">Export</string>
+    <string name="export_csv">Export CSV</string>
+    <string name="export_csv_sub">All finance records → Excel / Sheets</string>
+    <string name="export_pdf">Export PDF Report</string>
+    <string name="export_pdf_sub">Monthly PDF report</string>
+    <string name="section_backup">Backup</string>
+    <string name="backup_export">Export JSON Backup</string>
+    <string name="backup_export_sub">Save all data as JSON file</string>
+    <string name="backup_restore">Restore from Backup</string>
+    <string name="backup_restore_sub">Restore data from JSON backup file</string>
+    <string name="section_stats">Statistics</string>
+    <string name="stat_transactions">Transactions</string>
+    <string name="stat_activities">Activities</string>
+    <string name="restore_confirm_title">Restore Backup?</string>
+    <string name="restore_confirm_body">All current data will be replaced. Are you sure?</string>
+    <string name="restore">Restore</string>
+
+    <!-- Edit -->
+    <string name="edit_entry">Edit Entry</string>
+    <string name="edit_event">Edit Event</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title_1">Welcome to\nSmartFarm</string>
+    <string name="onboarding_sub_1">Your farm management assistant\nfor Cambodian farmers</string>
+    <string name="onboarding_title_2">Finance &amp; Calendar</string>
+    <string name="onboarding_sub_2">Track income, expenses\nand daily farm activities</string>
+    <string name="onboarding_title_3">Private &amp; Offline</string>
+    <string name="onboarding_sub_3">All data is stored\non your device</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_start">Get Started</string>
+
+    <!-- Common -->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+</resources>

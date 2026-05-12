@@ -4,19 +4,19 @@
 
     - Setting up the Xcode project with proper folder structure and iOS 13+ deployment target
     - Introduction to MVVM with `ObservableObject` and `@Published` properties (iOS 13+)
-    - Creating the core data models: `Transaction`, `FarmActivity`, `Pest`
+    - Creating the core data models: `Transaction`, `FarmActivity`
     - Building a `FarmManager` (main view model) to coordinate all features
     - Set up the project with folders: `Models`, `ViewModels`, `Views`, `Utilities`
     - Implement the `FarmViewModel` with `@Published` arrays for each data type
-    - Create a main tab view with placeholders for 3 tabs (Finance, Calendar, Guide)
+    - Create a main tab view with placeholders for 2 tabs (Finance, Calendar)
 
 #### CoreData Persistence
 
-    - Setting up the `.xcdatamodeld` schema for all four models
+    - Setting up the `.xcdatamodeld` schema for all three models
     - Configuring `NSPersistentContainer` and `NSManagedObjectContext`
     - Using `@FetchRequest` for automatic UI updates
     - Basic CRUD operations (Create, Read, Update, Delete) with CoreData
-    - **Live Coding:** Implement all four CoreData entities, test saving and fetching
+    - **Live Coding:** Implement all three CoreData entities, test saving and fetching
     - Complete CoreData implementation for all models
     - Add sample data on first launch using a seed method
     - Verify data persists after app restart
@@ -50,16 +50,6 @@
     - Complete the Calendar tab with activity CRUD
     - Schedule notifications for each activity (1 day before, on the day)
     - Test notifications work when app is closed
-
-#### Pest & Disease Guide Module
-    - Designing the `Pest` CoreData entity with name, symptoms, treatment, image name
-    - Creating a searchable list with a custom `TextField` search bar (iOS 13+, no `.searchable` dependency)
-    - Implementing detail view with expandable sections using `@State` toggles
-    - Pre-loading data from a bundled JSON file on first launch
-    - Making it work completely offline
-    - Create a JSON file with at least 10 pests/diseases
-    - Load this data into CoreData on first launch
-    - Implement search and category tabs (Insects, Fungal, Bacterial)
 
 #### Dashboard & Cross-Module Integration
     - Building a dashboard tab with summary cards
@@ -105,7 +95,6 @@
 |--------|----------|----------------|
 | **Finance Tracker** | Income/expense tracking, profit reports, categories 
 | **Calendar & Reminders** | Activity scheduling, local notifications 
-| **Pest & Disease Guide** | Offline reference library with search
 | **Dashboard** | Unified view of all farm data 
 | **Reports & Charts** | Visual profit/loss analysis 
 | **Backup & Restore** | Data safety and portability 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SmartFarm" parent="Theme.Material3.DayNight.NoActionBar" />
+
+    <style name="Theme.SmartFarm.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#2E6E43</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_leaf</item>
+        <item name="windowSplashScreenIconBackgroundColor">#2E6E43</item>
+        <item name="postSplashScreenTheme">@style/Theme.SmartFarm</item>
+    </style>
+</resources>

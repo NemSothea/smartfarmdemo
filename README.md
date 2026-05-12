@@ -1,6 +1,6 @@
 # SmartFarm — កសិកម្មឆ្លាតវៃ ងាយស្រួល
 
-An offline-first farm-management demo designed for Cambodian small-scale farmers. SmartFarm bundles finance tracking, an activity calendar, an offline pest & disease guide, and backup/restore tools into a single Khmer-language interface.
+An offline-first farm-management demo designed for Cambodian small-scale farmers. SmartFarm bundles finance tracking, an activity calendar, and backup/restore tools into a single Khmer-language interface.
 
 **Live demo:** https://nemsothea.github.io/smartfarmdemo/
 
@@ -14,9 +14,9 @@ An offline-first farm-management demo designed for Cambodian small-scale farmers
 |:--:|:--:|:--:|
 | ![Splash screen](images/Splashscreen.png) | ![Intro screen](images/Introscreen.png) | ![Finance tab](images/FinanceTap.png) |
 
-| Calendar | Pest & Disease | Settings |
-|:--:|:--:|:--:|
-| ![Calendar tab](images/CalendarTab.png) | ![Pest & Disease tab](images/PestDeseaseTab.png) | ![Settings tab](images/SettingTap.png) |
+| Calendar | Settings |
+|:--:|:--:|
+| ![Calendar tab](images/CalendarTab.png) | ![Settings tab](images/SettingTap.png) |
 
 ---
 
@@ -24,7 +24,6 @@ An offline-first farm-management demo designed for Cambodian small-scale farmers
 
 - **ហិរញ្ញវត្ថុ — Finance tracker:** income/expense entries with category filters, KHR/USD toggle, and live balance/profit summaries.
 - **ប្រតិទិន — Calendar & reminders:** monthly grid with activity markers, per-day task list, and completion toggles.
-- **មគ្គុទ្ទេសក៍ — Pest & disease guide:** searchable, fully offline reference library grouped by Insects / Fungal / Bacterial.
 - **ការកំណត់ — Settings:** light/dark theme, data stats, CSV export, JSON backup & restore, and full data wipe.
 - **Khmer-first UI** with Cambodian-friendly currency formatting.
 - **Offline by design** — no network calls for core features.
