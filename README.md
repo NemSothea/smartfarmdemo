@@ -10,13 +10,21 @@ An offline-first farm-management demo designed for Cambodian small-scale farmers
 
 ## Screenshots
 
+### iOS (SwiftUI)
+
 | Splash | Onboarding | Dashboard |
 |:--:|:--:|:--:|
-| ![Splash screen](images/Splashscreen.png) | ![Intro screen](images/Introscreen.png) | ![Dashboard tab](images/DashboardTab.png) |
+| ![Splash](images/Splashscreen.png) | ![Onboarding](images/Introscreen.png) | ![Dashboard](images/DashboardTab.png) |
 
 | Finance | Calendar | Settings |
 |:--:|:--:|:--:|
-| ![Finance tab](images/FinanceTap.png) | ![Calendar tab](images/CalendarTab.png) | ![Settings tab](images/SettingTap.png) |
+| ![Finance](images/FinanceTap.png) | ![Calendar](images/CalendarTab.png) | ![Settings](images/SettingTap.png) |
+
+### Android (Jetpack Compose)
+
+| Dashboard | Finance | Calendar | Settings |
+|:--:|:--:|:--:|:--:|
+| ![Dashboard](images/DashboardTab_android.png) | ![Finance](images/FinanceTap_android.png) | ![Calendar](images/CalendarTab_android.png) | ![Settings](images/SettingTap_android.png) |
 
 ---
 
