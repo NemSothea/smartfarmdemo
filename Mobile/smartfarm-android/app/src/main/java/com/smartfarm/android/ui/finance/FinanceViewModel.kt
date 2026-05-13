@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.smartfarm.android.data.local.entity.FinanceEntry
 import com.smartfarm.android.data.local.entity.FinanceType
 import com.smartfarm.android.data.repository.FinanceRepository
+import com.smartfarm.android.util.UserPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -28,7 +29,8 @@ data class FinanceUiState(
 
 @HiltViewModel
 class FinanceViewModel @Inject constructor(
-    private val repository: FinanceRepository
+    private val repository: FinanceRepository,
+    private val userPrefs: UserPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FinanceUiState())
@@ -39,21 +41,22 @@ class FinanceViewModel @Inject constructor(
             combine(
                 repository.getAll(),
                 repository.totalIncome(),
-                repository.totalExpense()
-            ) { entries, income, expense ->
+                repository.totalExpense(),
+                userPrefs.showKhr
+            ) { entries, income, expense, showKhr ->
                 FinanceUiState(
                     entries = entries,
                     totalIncome = income,
                     totalExpense = expense,
                     monthlyBars = buildMonthlyBars(entries),
-                    showKhr = _uiState.value.showKhr,
+                    showKhr = showKhr,
                     isLoading = false
                 )
             }.collect { _uiState.value = it }
         }
     }
 
-    fun toggleCurrency() = _uiState.update { it.copy(showKhr = !it.showKhr) }
+    fun toggleCurrency() = userPrefs.toggleShowKhr()
 
     fun save(entry: FinanceEntry) = viewModelScope.launch { repository.save(entry) }
     fun delete(entry: FinanceEntry) = viewModelScope.launch { repository.delete(entry) }
@@ -79,5 +82,5 @@ class FinanceViewModel @Inject constructor(
     }
 
     fun formatAmount(khr: Double, showKhr: Boolean): String =
-        if (showKhr) "%,.0f ៛".format(khr) else "$%.2f".format(khr / 4100.0)
+        if (showKhr) "%,.0f ៛".format(khr) else "$%.2f".format(khr / 4000.0)
 }

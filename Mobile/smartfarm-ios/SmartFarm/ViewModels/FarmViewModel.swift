@@ -6,16 +6,20 @@ class FarmViewModel: ObservableObject {
     // MARK: - Published state
     @Published var transactions: [Transaction] = []
     @Published var activities: [FarmActivity] = []
-    @Published var showKHR: Bool = true
+    @Published private(set) var dataVersion: Int = 0
+    @Published var showKHR: Bool {
+        didSet { UserDefaults.standard.set(showKHR, forKey: "showKHR") }
+    }
 
     let managedContext: NSManagedObjectContext
     private var context: NSManagedObjectContext { managedContext }
 
-    static let USD_RATE: Double = 4100
+    static let USD_RATE: Double = 4000
 
     // MARK: - Init
     init(context: NSManagedObjectContext) {
         self.managedContext = context
+        self.showKHR = UserDefaults.standard.object(forKey: "showKHR") as? Bool ?? true
         fetchAll()
         seedIfNeeded()
     }
@@ -30,6 +34,7 @@ class FarmViewModel: ObservableObject {
 
         transactions = (try? context.fetch(txReq)) ?? []
         activities = (try? context.fetch(actReq)) ?? []
+        dataVersion += 1
     }
 
     // MARK: - Transaction CRUD
@@ -112,7 +117,7 @@ class FarmViewModel: ObservableObject {
     var upcomingActivities: [FarmActivity] {
         let now = Date()
         let week = Calendar.current.date(byAdding: .day, value: 7, to: now)!
-        return activities.filter { guard let d = $0.date else { return false }; return d >= now && d <= week }
+        return activities.filter { guard let d = $0.date else { return false }; return !$0.isDone && d >= now && d <= week }
     }
 
     // MARK: - Monthly chart data (last 6 months)
@@ -128,7 +133,7 @@ class FarmViewModel: ObservableObject {
         let now = Date()
         let fmt = DateFormatter()
         fmt.dateFormat = "MMM"
-        fmt.locale = Locale(identifier: "km")
+        fmt.locale = Locale(identifier: UserDefaults.standard.string(forKey: "appLanguage") ?? "km")
         return (-5...0).map { offset in
             let d = cal.date(byAdding: .month, value: offset, to: now)!
             let inc = transactions
@@ -159,6 +164,9 @@ class FarmViewModel: ObservableObject {
         addActivity(title: "ស្រោចទឹក", type: "ស្រោចទឹក", notes: "", date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!)
         addActivity(title: "ដាក់ជី", type: "ដាក់ជី", notes: "", date: Calendar.current.date(byAdding: .day, value: 3, to: Date())!)
     }
+
+    // MARK: - Public refresh (called by views on appear)
+    func refresh() { fetchAll() }
 
     // MARK: - Save
     private func save() {

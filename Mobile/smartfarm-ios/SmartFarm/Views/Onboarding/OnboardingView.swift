@@ -9,22 +9,22 @@ private struct OnboardingPage {
 
 private let pages: [OnboardingPage] = [
     OnboardingPage(
-        icon: "leaf.fill",
-        title: "ស្វាគមន៍មកកាន់\nSmartFarm",
-        subtitle: "ជំនួយការគ្រប់គ្រងកសិដ្ឋាន\nសម្រាប់កសិករខ្មែរ",
+        icon: "chart.line.uptrend.xyaxis",
+        title: "តាមដានហិរញ្ញវត្ថុ",
+        subtitle: "កត់ត្រាចំណូល និងចំណាយ\nជា រៀល ឬ ដុល្លារ",
         color: Color("PrimaryGreen")
     ),
     OnboardingPage(
-        icon: "dollarsign.circle.fill",
-        title: "ហិរញ្ញវត្ថុ & ប្រតិទិន",
-        subtitle: "តាមដានចំណូល ចំណាយ\nនិងសកម្មភាពកសិកម្មប្រចាំថ្ងៃ",
+        icon: "calendar.badge.plus",
+        title: "គ្រោងសកម្មភាព",
+        subtitle: "កុំភ្លេចការដាំ ឬ ប្រមូលផល\nជាមួយការជូនដំណឹង",
         color: .blue
     ),
     OnboardingPage(
-        icon: "lock.shield.fill",
-        title: "ឯកជន & Offline",
-        subtitle: "ទិន្នន័យទាំងអស់ត្រូវបានរក្សាទុក\nក្នុងឧបករណ៍របស់អ្នក",
-        color: .orange
+        icon: "chart.bar.fill",
+        title: "រីកចម្រើនជាមួយទិន្នន័យ",
+        subtitle: "របាយការណ៍ប្រចាំខែ\nជួយសម្រេចចិត្ត",
+        color: Color(red: 0.43, green: 0.24, blue: 0.57)
     ),
 ]
 
@@ -61,7 +61,7 @@ struct OnboardingView: View {
                     }
                 }) {
                     Text(currentPage < pages.count - 1 ? "បន្ទាប់" : "ចាប់ផ្ដើម")
-                        .fontWeight(.semibold)
+                        .font(AppFont.semibold(size: 17))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
@@ -91,10 +91,10 @@ private struct OnboardingPageView: View {
                         .foregroundColor(page.color)
                 )
             Text(page.title)
-                .font(.title).fontWeight(.bold)
+                .font(AppFont.title())
                 .multilineTextAlignment(.center)
             Text(page.subtitle)
-                .font(.body)
+                .font(AppFont.body())
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)

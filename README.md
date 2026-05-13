@@ -10,22 +10,23 @@ An offline-first farm-management demo designed for Cambodian small-scale farmers
 
 ## Screenshots
 
-| Splash | Onboarding | Finance |
+| Splash | Onboarding | Dashboard |
 |:--:|:--:|:--:|
-| ![Splash screen](images/Splashscreen.png) | ![Intro screen](images/Introscreen.png) | ![Finance tab](images/FinanceTap.png) |
+| ![Splash screen](images/Splashscreen.png) | ![Intro screen](images/Introscreen.png) | ![Dashboard tab](images/DashboardTab.png) |
 
-| Calendar | Settings |
-|:--:|:--:|
-| ![Calendar tab](images/CalendarTab.png) | ![Settings tab](images/SettingTap.png) |
+| Finance | Calendar | Settings |
+|:--:|:--:|:--:|
+| ![Finance tab](images/FinanceTap.png) | ![Calendar tab](images/CalendarTab.png) | ![Settings tab](images/SettingTap.png) |
 
 ---
 
 ## Features
 
+- **ផ្ទាំងគ្រប់គ្រង — Dashboard:** current-month profit/loss hero card, 6-month income vs expense bar chart, upcoming 7-day activities, and recent transactions — all updating live as Finance and Calendar data changes.
 - **ហិរញ្ញវត្ថុ — Finance tracker:** income/expense entries with category filters, KHR/USD toggle, and live balance/profit summaries.
-- **ប្រតិទិន — Calendar & reminders:** monthly grid with activity markers, per-day task list, and completion toggles.
-- **ការកំណត់ — Settings:** light/dark theme, data stats, CSV export, JSON backup & restore, and full data wipe.
-- **Khmer-first UI** with Cambodian-friendly currency formatting.
+- **ប្រតិទិន — Calendar & activities:** monthly grid with activity markers, per-day task list, and completion toggles.
+- **ការកំណត់ — Settings:** light/dark theme, language switch (Khmer/English), data stats, CSV export, JSON backup & restore, and full data wipe.
+- **Khmer-first UI** with Cambodian-friendly currency formatting (KHR ↔ USD at 4,100 rate).
 - **Offline by design** — no network calls for core features.
 
 ---

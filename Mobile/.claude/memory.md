@@ -25,7 +25,7 @@ Cross-platform context for **nemsothea** (Senior iOS & Android Developer), solo 
 
 ## Shared Rules (Both Platforms)
 
-- Amount always stored in **KHR**; USD display-only at **4,100 KHR/USD**
+- Amount always stored in **KHR**; USD display-only at **4,000 KHR/USD**
 - All visible UI text in **Khmer** (English as fallback)
 - **Offline first** — zero network calls for core features
 - No pest & disease guide (removed from v1 scope)
@@ -61,20 +61,36 @@ Cross-platform context for **nemsothea** (Senior iOS & Android Developer), solo 
 
 **FarmActivity:** `id: UUID` · `title: String` · `type: String` · `notes: String` · `date: Date` · `isNotified: Bool`
 
-### iOS Files in Place
+### iOS Files in Place (Sprint 6 complete)
 
 | File | Status |
 |------|--------|
-| `SmartFarmApp.swift` | Exists — needs FarmViewModel injection |
-| `ContentView.swift` | Replace with `MainTabView` |
-| `Persistence.swift` | Ready — correct NSPersistentContainer |
-| `SmartFarm.xcdatamodeld` | Update — currently only has `Item` entity |
+| `SmartFarmApp.swift` | ✅ |
+| `Persistence.swift` | ✅ |
+| `SmartFarm.xcdatamodeld` | ✅ Transaction + FarmActivity entities |
+| `ViewModels/FarmViewModel.swift` | ✅ full CRUD + updateTransaction + updateActivity |
+| `Views/MainTabView.swift` | ✅ 4 tabs |
+| `Views/Onboarding/SplashView.swift` | ✅ |
+| `Views/Onboarding/OnboardingView.swift` | ✅ 3-slide, first-launch gated |
+| `Views/Dashboard/DashboardView.swift` | ✅ |
+| `Views/Finance/FinanceListView.swift` | ✅ + TransactionFormSheet (add/edit) |
+| `Views/Finance/MonthlyChartView.swift` | ✅ GeometryReader bars |
+| `Views/Calendar/CalendarTabView.swift` | ✅ + ActivityFormSheet (add/edit) |
+| `Views/Settings/SettingsView.swift` | ✅ |
+| `Utilities/ExportManager.swift` | ✅ CSV + PDF |
+| `Utilities/BackupManager.swift` | ✅ JSON backup/restore |
+| `Utilities/NotificationManager.swift` | ✅ |
+| `Utilities/DocumentPicker.swift` | ✅ |
+
+### iOS Remaining — Sprint 7 (Dark Mode)
+- Full adaptive color pass (see `.claude/skills/ios.md` Sprint 7 section)
+- Create `PrimaryGreen.colorset` in Assets.xcassets
+- Replace hardcoded hex colors in all View files
 
 ### Architecture
 - `PersistenceController` — singleton, injected via `.environment(\.managedObjectContext)`
 - `FarmViewModel` — shared `@EnvironmentObject` across all tabs
 - `NotificationManager` — static utility struct, not in ViewModel
-- Seed data — `UserDefaults` flag `"hasSeededData"`
 
 ---
 
@@ -94,23 +110,19 @@ Cross-platform context for **nemsothea** (Senior iOS & Android Developer), solo 
 | State | StateFlow + ViewModel |
 | Navigation | Navigation Compose |
 
-### What Is Already Done
+### Android Status — Sprint 6 complete, feature-complete
+
+All phases A–F done:
 - Full MVVM + Hilt DI architecture
-- Room DB — `FinanceEntry`, `EventEntry` + DAOs + Repositories
-- 3-tab navigation — Dashboard, Finance, Calendar
-- Finance screen — list, summary card, add/delete
-- Calendar screen — event list, add/delete
+- Room DB v3 — `FinanceEntry`, `EventEntry` (with `isDone` + `type`) + DAOs + Repositories
+- 4-tab navigation — Dashboard, Finance, Calendar, Settings
+- Finance screen — list, summary card, KHR/USD, chart, add/edit/delete, CSV/PDF export
+- Calendar screen — month grid, activity types, done toggle, add/edit/delete, WorkManager reminders
 - Dashboard — finance summary + 7-day events
+- Settings — stats, CSV/PDF export, JSON backup/restore, clear all
 - Khmer localization (`values-km/strings.xml`)
 - Material3 dark mode
-
-### What Remains (Phases A–F)
-- A: Notifications (WorkManager)
-- B: Calendar month grid (LazyVerticalGrid)
-- C: Finance bar charts (Canvas API)
-- D: CSV + PDF export
-- E: JSON backup & restore
-- F: Settings screen + UI polish
+- Splash (core-splashscreen) + Onboarding (3-slide HorizontalPager)
 
 ---
 

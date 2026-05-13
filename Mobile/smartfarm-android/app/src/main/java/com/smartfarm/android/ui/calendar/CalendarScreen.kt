@@ -10,9 +10,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -55,14 +57,19 @@ fun CalendarScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showAddDialog by remember { mutableStateOf(false) }
     var editingEvent by remember { mutableStateOf<EventEntry?>(null) }
+    var searchQuery by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text(stringResource(R.string.nav_calendar)) }) },
         floatingActionButton = {
-            FloatingActionButton(onClick = { showAddDialog = true }) {
+            FloatingActionButton(
+                onClick = { showAddDialog = true },
+                modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
+            ) {
                 Icon(Icons.Default.Add, contentDescription = stringResource(R.string.add_event))
             }
-        }
+        },
+        contentWindowInsets = WindowInsets(0.dp)
     ) { scaffoldPadding ->
         Column(
             modifier = Modifier
@@ -70,6 +77,47 @@ fun CalendarScreen(
                 .padding(scaffoldPadding)
                 .padding(bottom = innerPadding.calculateBottomPadding())
         ) {
+            // Search bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text(stringResource(R.string.search_placeholder)) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (searchQuery.isNotEmpty()) {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(Icons.Default.Close, contentDescription = null)
+                        }
+                    }
+                },
+                singleLine = true,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(50),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+
+            if (searchQuery.isNotBlank()) {
+                // Search results — flat cross-date list
+                val results = uiState.events.filter { e ->
+                    e.title.contains(searchQuery, ignoreCase = true) ||
+                    e.type.contains(searchQuery, ignoreCase = true)
+                }.sortedBy { it.dateMillis }
+                if (results.isEmpty()) {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(stringResource(R.string.no_results), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                } else {
+                    LazyColumn {
+                        items(results, key = { it.id }) { event ->
+                            EventItem(event = event,
+                                onDelete = { viewModel.delete(event) },
+                                onToggleDone = { viewModel.toggleDone(event) },
+                                onEdit = { editingEvent = event })
+                        }
+                    }
+                }
+            } else {
             MonthNavigationHeader(uiState.year, uiState.month, viewModel::prevMonth, viewModel::nextMonth)
             MonthGrid(uiState.year, uiState.month, uiState.activeDaysInMonth, uiState.selectedDay, viewModel::selectDay)
             HorizontalDivider()
@@ -91,6 +139,7 @@ fun CalendarScreen(
                     }
                 }
             }
+            } // end else (no search)
         }
     }
 
@@ -247,18 +296,39 @@ private fun EventFormDialog(
         Calendar.getInstance().apply { set(selectedYear, selectedMonth, selectedDay, 8, 0, 0) }.timeInMillis
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(if (editingEvent == null) stringResource(R.string.add_event) else stringResource(R.string.edit_event)) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(value = title, onValueChange = { title = it },
-                    label = { Text(stringResource(R.string.title)) }, singleLine = true, isError = title.isEmpty())
-                ExposedDropdownMenuBox(expanded = typeDropdownExpanded, onExpandedChange = { typeDropdownExpanded = it }) {
-                    OutlinedTextField(value = selectedType, onValueChange = {}, readOnly = true,
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 32.dp)
+                .imePadding(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+        Text(
+            text = if (editingEvent == null) stringResource(R.string.add_event) else stringResource(R.string.edit_event),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = title, onValueChange = { title = it },
+                    label = { Text(stringResource(R.string.title)) },
+                    singleLine = true,
+                    isError = title.isEmpty(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                ExposedDropdownMenuBox(
+                    expanded = typeDropdownExpanded,
+                    onExpandedChange = { typeDropdownExpanded = it },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = selectedType, onValueChange = {}, readOnly = true,
                         label = { Text(stringResource(R.string.activity_type)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = typeDropdownExpanded) },
-                        modifier = Modifier.menuAnchor())
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
                     ExposedDropdownMenu(expanded = typeDropdownExpanded, onDismissRequest = { typeDropdownExpanded = false }) {
                         activityTypes.forEach { type ->
                             DropdownMenuItem(
@@ -275,31 +345,34 @@ private fun EventFormDialog(
                         }
                     }
                 }
-                OutlinedTextField(value = description, onValueChange = { description = it },
-                    label = { Text(stringResource(R.string.description)) })
+                OutlinedTextField(
+                    value = description, onValueChange = { description = it },
+                    label = { Text(stringResource(R.string.description)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = hasReminder, onCheckedChange = { hasReminder = it })
                     Spacer(Modifier.width(4.dp))
                     Text(stringResource(R.string.set_reminder))
                 }
             }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    onConfirm(EventEntry(
-                        id = editingEvent?.id ?: 0,
-                        title = title.trim(),
-                        type = selectedType,
-                        description = description,
-                        dateMillis = dateMillis,
-                        hasReminder = hasReminder,
-                        isDone = editingEvent?.isDone ?: false
-                    ))
-                },
-                enabled = title.isNotBlank()
-            ) { Text(stringResource(R.string.save)) }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } }
-    )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onDismiss, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.cancel))
+                }
+                Button(
+                    onClick = {
+                        onConfirm(EventEntry(
+                            id = editingEvent?.id ?: 0,
+                            title = title.trim(), type = selectedType,
+                            description = description, dateMillis = dateMillis,
+                            hasReminder = hasReminder, isDone = editingEvent?.isDone ?: false
+                        ))
+                    },
+                    enabled = title.isNotBlank(),
+                    modifier = Modifier.weight(1f)
+                ) { Text(stringResource(R.string.save)) }
+            }
+        }
+    }
 }

@@ -1,56 +1,105 @@
 import SwiftUI
 
+private enum FinanceSheet: Identifiable {
+    case add
+    case edit(Transaction)
+    var id: String {
+        switch self {
+        case .add: return "add"
+        case .edit(let tx): return tx.id?.uuidString ?? "edit"
+        }
+    }
+}
+
 struct FinanceListView: View {
     @EnvironmentObject var vm: FarmViewModel
-    @State private var showAdd = false
+    @AppStorage("appLanguage") private var appLanguage: String = "km"
+    @State private var activeSheet: FinanceSheet? = nil
     @State private var filterType = "all"
-    @State private var editingTransaction: Transaction? = nil
-    @State private var showEditSheet = false
+    @State private var searchText = ""
 
-    private let filters = ["all": "ទាំងអស់", "income": "ចំណូល", "expense": "ចំណាយ"]
+    private var filters: [String: String] {
+        ["all": L10n.t("finance.all"), "income": L10n.t("finance.income"), "expense": L10n.t("finance.expense")]
+    }
 
     var filtered: [Transaction] {
-        if filterType == "all" { return vm.transactions }
-        return vm.transactions.filter { $0.type == filterType }
+        let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
+        return vm.transactions.filter { tx in
+            let matchType = filterType == "all" || tx.type == filterType
+            let matchSearch = q.isEmpty ||
+                (tx.title ?? "").lowercased().contains(q) ||
+                (tx.category ?? "").lowercased().contains(q) ||
+                (tx.note ?? "").lowercased().contains(q)
+            return matchType && matchSearch
+        }
     }
 
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                // Summary card
-                HStack(spacing: 24) {
-                    summaryItem(label: "ចំណូល", value: vm.currentMonthIncome, color: Color("PrimaryGreen"))
-                    Divider().frame(height: 36)
-                    summaryItem(label: "ចំណាយ", value: vm.currentMonthExpense, color: Color("ExpenseRed"))
-                    Divider().frame(height: 36)
-                    summaryItem(label: "ចំណេញ", value: vm.currentMonthProfit,
-                                color: vm.currentMonthProfit >= 0 ? Color("PrimaryGreen") : Color("ExpenseRed"))
+                // Balance hero card
+                VStack(spacing: 0) {
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(L10n.t("finance.balance")).font(AppFont.caption()).foregroundColor(.secondary)
+                            Text(vm.format(khr: vm.currentMonthProfit))
+                                .font(AppFont.bold(size: 28))
+                                .foregroundColor(vm.currentMonthProfit >= 0 ? Color("PrimaryGreen") : Color("ExpenseRed"))
+                        }
+                        Spacer()
+                        Picker("", selection: $vm.showKHR) {
+                            Text("KHR ៛").tag(true)
+                            Text("USD $").tag(false)
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                        .frame(width: 130)
+                    }
+                    .padding(.horizontal).padding(.top, 14)
+
+                    Divider().padding(.horizontal).padding(.top, 10)
+
+                    HStack(spacing: 0) {
+                        summaryItem(label: L10n.t("finance.income"), value: vm.currentMonthIncome, color: Color("PrimaryGreen"), dot: true)
+                        Divider().frame(height: 28)
+                        summaryItem(label: L10n.t("finance.expense"), value: vm.currentMonthExpense, color: Color("ExpenseRed"), dot: true)
+                    }
+                    .padding(.vertical, 10)
                 }
-                .padding()
                 .background(Color(.systemBackground))
 
+                // Search bar
+                HStack {
+                    Image(systemName: "magnifyingglass").foregroundColor(.secondary)
+                    TextField(L10n.t("finance.search"), text: $searchText)
+                    if !searchText.isEmpty {
+                        Button(action: { searchText = "" }) {
+                            Image(systemName: "xmark.circle.fill").foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .padding(10)
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+                .padding(.horizontal)
+                .padding(.top, 8)
+
                 // Monthly bar chart
-                MonthlyChartView(data: vm.monthlyChartData, format: vm.format)
+                MonthlyChartView()
+                    .environmentObject(vm)
                     .padding(.vertical, 4)
 
-                // Currency + filter row
-                HStack {
-                    Picker("", selection: $vm.showKHR) {
-                        Text("KHR ៛").tag(true)
-                        Text("USD $").tag(false)
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .frame(width: 150)
-                    Spacer()
+                // Filter chips
+                HStack(spacing: 8) {
                     ForEach(["all", "income", "expense"], id: \.self) { key in
                         Button(filters[key]!) { filterType = key }
-                            .font(.caption)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 5)
+                            .font(filterType == key ? AppFont.semibold(size: 12) : AppFont.caption())
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 7)
                             .background(filterType == key ? Color("PrimaryGreen") : Color(.systemGray5))
                             .foregroundColor(filterType == key ? .white : .primary)
-                            .cornerRadius(12)
+                            .cornerRadius(16)
                     }
+                    Spacer()
                 }
                 .padding(.horizontal)
                 .padding(.vertical, 8)
@@ -59,16 +108,16 @@ struct FinanceListView: View {
                 // List
                 if filtered.isEmpty {
                     Spacer()
-                    Text("មិនមានប្រតិបត្តិការ").foregroundColor(.secondary)
+                    Text(L10n.t("finance.empty")).foregroundColor(.secondary)
                     Spacer()
                 } else {
                     List {
                         ForEach(filtered, id: \.id) { tx in
                             HStack {
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text(tx.title ?? "").font(.subheadline)
+                                    Text(tx.title ?? "").font(AppFont.subheadline())
                                     Text("\(tx.category ?? "")  ·  \(tx.date.map { dateStr($0) } ?? "")")
-                                        .font(.caption).foregroundColor(.secondary)
+                                        .font(AppFont.caption()).foregroundColor(.secondary)
                                 }
                                 Spacer()
                                 Text(vm.format(khr: tx.amount))
@@ -76,10 +125,7 @@ struct FinanceListView: View {
                                     .foregroundColor(tx.type == "income" ? Color("PrimaryGreen") : Color("ExpenseRed"))
                             }
                             .contentShape(Rectangle())
-                            .onTapGesture {
-                                editingTransaction = tx
-                                showEditSheet = true
-                            }
+                            .onTapGesture { activeSheet = .edit(tx) }
                         }
                         .onDelete { indices in
                             indices.forEach { vm.deleteTransaction(filtered[$0]) }
@@ -88,30 +134,32 @@ struct FinanceListView: View {
                     .listStyle(PlainListStyle())
                 }
             }
-            .navigationTitle("ហិរញ្ញវត្ថុ")
+            .navigationTitle(L10n.t("finance.title"))
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showAdd = true }) { Image(systemName: "plus") }
+                    Button(action: { activeSheet = .add }) { Image(systemName: "plus") }
                 }
             }
-            .sheet(isPresented: $showAdd) {
-                TransactionFormSheet(isPresented: $showAdd)
-                    .environmentObject(vm)
-            }
-            .sheet(isPresented: $showEditSheet, onDismiss: { editingTransaction = nil }) {
-                if let tx = editingTransaction {
-                    TransactionFormSheet(isPresented: $showEditSheet, editingTransaction: tx)
-                        .environmentObject(vm)
+            .sheet(item: $activeSheet) { sheet in
+                switch sheet {
+                case .add:
+                    TransactionFormSheet().environmentObject(vm)
+                case .edit(let tx):
+                    TransactionFormSheet(editingTransaction: tx).environmentObject(vm)
                 }
             }
         }
     }
 
-    private func summaryItem(label: String, value: Double, color: Color) -> some View {
-        VStack(spacing: 2) {
-            Text(label).font(.caption).foregroundColor(.secondary)
-            Text(vm.format(khr: value)).font(.subheadline).fontWeight(.semibold).foregroundColor(color)
+    private func summaryItem(label: String, value: Double, color: Color, dot: Bool = false) -> some View {
+        VStack(spacing: 4) {
+            HStack(spacing: 5) {
+                if dot { Circle().fill(color).frame(width: 8, height: 8) }
+                Text(label).font(AppFont.caption()).foregroundColor(.secondary)
+            }
+            Text(vm.format(khr: value)).font(AppFont.semibold(size: 15)).foregroundColor(color)
         }
+        .frame(maxWidth: .infinity)
     }
 
     private func dateStr(_ date: Date) -> String {
@@ -125,7 +173,8 @@ struct FinanceListView: View {
 
 private struct TransactionFormSheet: View {
     @EnvironmentObject var vm: FarmViewModel
-    @Binding var isPresented: Bool
+    @AppStorage("appLanguage") private var appLanguage: String = "km"
+    @Environment(\.dismiss) private var dismiss
     var editingTransaction: Transaction?
 
     @State private var title: String
@@ -135,10 +184,9 @@ private struct TransactionFormSheet: View {
     @State private var note: String
     @State private var date: Date
 
-    private let categories = ["Seeds", "Fertilizer", "Labor", "Tools", "Sales"]
+    private let categories = ["ជី", "ពូជ", "ការងារ", "ឧបករណ៍", "លក់"]
 
-    init(isPresented: Binding<Bool>, editingTransaction: Transaction? = nil) {
-        _isPresented = isPresented
+    init(editingTransaction: Transaction? = nil) {
         self.editingTransaction = editingTransaction
         let tx = editingTransaction
         _title      = State(initialValue: tx?.title ?? "")
@@ -157,27 +205,27 @@ private struct TransactionFormSheet: View {
         NavigationView {
             Form {
                 Section {
-                    TextField("ចំណងជើង", text: $title)
-                    TextField("ចំនួនទឹកប្រាក់ (KHR)", text: $amountText)
+                    TextField(L10n.t("form.title"), text: $title)
+                    TextField(L10n.t("form.amount"), text: $amountText)
                         .keyboardType(.decimalPad)
-                    Picker("ប្រភេទ", selection: $type) {
-                        Text("ចំណូល").tag("income")
-                        Text("ចំណាយ").tag("expense")
+                    Picker(L10n.t("form.type"), selection: $type) {
+                        Text(L10n.t("finance.income")).tag("income")
+                        Text(L10n.t("finance.expense")).tag("expense")
                     }
-                    Picker("ក្រុម", selection: $category) {
+                    Picker(L10n.t("form.category"), selection: $category) {
                         ForEach(categories, id: \.self) { Text($0).tag($0) }
                     }
-                    DatePicker("កាលបរិច្ឆេទ", selection: $date, displayedComponents: .date)
-                    TextField("កំណត់ចំណាំ", text: $note)
+                    DatePicker(L10n.t("form.date"), selection: $date, displayedComponents: .date)
+                    TextField(L10n.t("form.note"), text: $note)
                 }
             }
-            .navigationTitle(editingTransaction == nil ? "បន្ថែមប្រតិបត្តិការ" : "កែប្រែ")
+            .navigationTitle(editingTransaction == nil ? L10n.t("finance.add") : L10n.t("finance.edit"))
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("បោះបង់") { isPresented = false }
+                    Button(L10n.t("form.cancel")) { dismiss() }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("រក្សាទុក") {
+                    Button(L10n.t("form.save")) {
                         guard canSave, let amount = Double(amountText) else { return }
                         let t = title.trimmingCharacters(in: .whitespaces)
                         if let tx = editingTransaction {
@@ -187,12 +235,13 @@ private struct TransactionFormSheet: View {
                             vm.addTransaction(title: t, amount: amount,
                                               type: type, category: category, note: note, date: date)
                         }
-                        isPresented = false
+                        dismiss()
                     }
                     .disabled(!canSave)
                 }
             }
         }
+        .navigationViewStyle(.stack)
     }
 }
 
@@ -202,3 +251,4 @@ struct FinanceListView_Previews: PreviewProvider {
             .environmentObject(FarmViewModel(context: PersistenceController.preview.container.viewContext))
     }
 }
+

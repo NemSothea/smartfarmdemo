@@ -25,6 +25,14 @@
 		5B3BCB412FAD97EC009A2991 /* DocumentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B3BCB402FAD97EC009A2991 /* DocumentPicker.swift */; };
 		5B3BCB442FAD97EC009A2991 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B3BCB432FAD97EC009A2991 /* SplashView.swift */; };
 		5B3BCB462FAD97EC009A2991 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B3BCB452FAD97EC009A2991 /* OnboardingView.swift */; };
+		5B3BCB482FAD97EC009A2991 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B3BCB472FAD97EC009A2991 /* L10n.swift */; };
+		5B3BCB4C2FAD97EC009A2991 /* Hanuman-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5B3BCB4B2FAD97EC009A2991 /* Hanuman-Regular.ttf */; };
+		5B3BCB4E2FAD97EC009A2991 /* Hanuman-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5B3BCB4D2FAD97EC009A2991 /* Hanuman-Bold.ttf */; };
+		5B3BCB502FAD97EC009A2991 /* Inter-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5B3BCB4F2FAD97EC009A2991 /* Inter-Regular.ttf */; };
+		5B3BCB522FAD97EC009A2991 /* Inter-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5B3BCB512FAD97EC009A2991 /* Inter-Medium.ttf */; };
+		5B3BCB542FAD97EC009A2991 /* Inter-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5B3BCB532FAD97EC009A2991 /* Inter-SemiBold.ttf */; };
+		5B3BCB562FAD97EC009A2991 /* Inter-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5B3BCB552FAD97EC009A2991 /* Inter-Bold.ttf */; };
+		5B3BCB582FAD97EC009A2991 /* AppFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B3BCB572FAD97EC009A2991 /* AppFont.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +55,14 @@
 		5B3BCB402FAD97EC009A2991 /* DocumentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPicker.swift; sourceTree = "<group>"; };
 		5B3BCB432FAD97EC009A2991 /* SplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		5B3BCB452FAD97EC009A2991 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		5B3BCB472FAD97EC009A2991 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
+		5B3BCB4B2FAD97EC009A2991 /* Hanuman-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Hanuman-Regular.ttf"; sourceTree = "<group>"; };
+		5B3BCB4D2FAD97EC009A2991 /* Hanuman-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Hanuman-Bold.ttf"; sourceTree = "<group>"; };
+		5B3BCB4F2FAD97EC009A2991 /* Inter-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Regular.ttf"; sourceTree = "<group>"; };
+		5B3BCB512FAD97EC009A2991 /* Inter-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Medium.ttf"; sourceTree = "<group>"; };
+		5B3BCB532FAD97EC009A2991 /* Inter-SemiBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-SemiBold.ttf"; sourceTree = "<group>"; };
+		5B3BCB552FAD97EC009A2991 /* Inter-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Inter-Bold.ttf"; sourceTree = "<group>"; };
+		5B3BCB572FAD97EC009A2991 /* AppFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFont.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -84,6 +100,7 @@
 				5B3BCB252FAD97EC009A2991 /* ViewModels */,
 				5B3BCB262FAD97EC009A2991 /* Views */,
 				5B3BCB2A2FAD97EC009A2991 /* Utilities */,
+				5B3BCB592FAD97EC009A2991 /* Fonts */,
 				5B3BCB162FAD97EC009A2991 /* Assets.xcassets */,
 				5B3BCB1D2FAD97EC009A2991 /* SmartFarm.xcdatamodeld */,
 				5B3BCB182FAD97EC009A2991 /* Preview Content */,
@@ -152,8 +169,23 @@
 				5B3BCB3C2FAD97EC009A2991 /* ExportManager.swift */,
 				5B3BCB3E2FAD97EC009A2991 /* BackupManager.swift */,
 				5B3BCB402FAD97EC009A2991 /* DocumentPicker.swift */,
+				5B3BCB472FAD97EC009A2991 /* L10n.swift */,
+				5B3BCB572FAD97EC009A2991 /* AppFont.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		5B3BCB592FAD97EC009A2991 /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				5B3BCB4B2FAD97EC009A2991 /* Hanuman-Regular.ttf */,
+				5B3BCB4D2FAD97EC009A2991 /* Hanuman-Bold.ttf */,
+				5B3BCB4F2FAD97EC009A2991 /* Inter-Regular.ttf */,
+				5B3BCB512FAD97EC009A2991 /* Inter-Medium.ttf */,
+				5B3BCB532FAD97EC009A2991 /* Inter-SemiBold.ttf */,
+				5B3BCB552FAD97EC009A2991 /* Inter-Bold.ttf */,
+			);
+			path = Fonts;
 			sourceTree = "<group>";
 		};
 		5B3BCB372FAD97EC009A2991 /* Settings */ = {
@@ -233,6 +265,12 @@
 			files = (
 				5B3BCB1A2FAD97EC009A2991 /* Preview Assets.xcassets in Resources */,
 				5B3BCB172FAD97EC009A2991 /* Assets.xcassets in Resources */,
+				5B3BCB4C2FAD97EC009A2991 /* Hanuman-Regular.ttf in Resources */,
+				5B3BCB4E2FAD97EC009A2991 /* Hanuman-Bold.ttf in Resources */,
+				5B3BCB502FAD97EC009A2991 /* Inter-Regular.ttf in Resources */,
+				5B3BCB522FAD97EC009A2991 /* Inter-Medium.ttf in Resources */,
+				5B3BCB542FAD97EC009A2991 /* Inter-SemiBold.ttf in Resources */,
+				5B3BCB562FAD97EC009A2991 /* Inter-Bold.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -259,6 +297,8 @@
 				5B3BCB412FAD97EC009A2991 /* DocumentPicker.swift in Sources */,
 				5B3BCB442FAD97EC009A2991 /* SplashView.swift in Sources */,
 				5B3BCB462FAD97EC009A2991 /* OnboardingView.swift in Sources */,
+				5B3BCB482FAD97EC009A2991 /* L10n.swift in Sources */,
+				5B3BCB582FAD97EC009A2991 /* AppFont.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

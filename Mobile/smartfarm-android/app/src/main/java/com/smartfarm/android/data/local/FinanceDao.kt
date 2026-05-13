@@ -22,6 +22,15 @@ interface FinanceDao {
     @Query("SELECT COALESCE(SUM(amount), 0) FROM finance_entries WHERE type = 'EXPENSE'")
     fun totalExpense(): Flow<Double>
 
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM finance_entries WHERE type = 'INCOME' AND dateMillis >= :from AND dateMillis < :to")
+    fun monthIncome(from: Long, to: Long): Flow<Double>
+
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM finance_entries WHERE type = 'EXPENSE' AND dateMillis >= :from AND dateMillis < :to")
+    fun monthExpense(from: Long, to: Long): Flow<Double>
+
+    @Query("SELECT * FROM finance_entries ORDER BY dateMillis DESC LIMIT :limit")
+    fun getRecent(limit: Int): Flow<List<FinanceEntry>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(entry: FinanceEntry)
 

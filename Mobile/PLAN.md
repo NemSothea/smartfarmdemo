@@ -5,6 +5,44 @@
 
 ---
 
+## Design References
+
+- **Figma Brief:** `FIGMA_BRIEF.md` — primary native design spec (iOS HIG + Material 3), all screens A0–A7 / B0–B7
+- **Web demo:** `../../src/App.jsx` — original process-flow reference (mobile is a superset)
+
+**App flow:** Splash (1.5s animation) → Onboarding (3 slides) → Main app
+
+**Onboarding slides:**
+1. 💰 "តាមដានហិរញ្ញវត្ថុ" — track income/expense in KHR or USD
+2. 📅 "គ្រោងសកម្មភាព" — schedule farming activities with reminders
+3. 📊 "រីកចម្រើនជាមួយទិន្នន័យ" — monthly reports for better decisions
+
+**All three platforms (Web, iOS, Android) now have full feature parity.**
+
+| Screen | Web | iOS | Android |
+|--------|-----|-----|---------|
+| Splash | ✅ | ✅ | ✅ |
+| Onboarding (3 slides) | ✅ | ✅ | ✅ |
+| Dashboard — balance hero + bar chart | ✅ | ✅ | ✅ |
+| Dashboard — upcoming 7-day activities | ✅ | ✅ | ✅ |
+| Dashboard — recent transactions | ✅ | ✅ | ✅ |
+| Finance — balance card + KHR/USD toggle | ✅ | ✅ | ✅ |
+| Finance — filter chips (All/Income/Expense) | ✅ | ✅ | ✅ |
+| Finance — FAB → bottom sheet CRUD | ✅ | ✅ | ✅ |
+| Finance — bar chart (6 months) | ✅ | ✅ | ✅ |
+| Finance — edit record | — | ✅ | ✅ |
+| Calendar — month grid + dot markers | ✅ | ✅ | ✅ |
+| Calendar — per-day list + done toggle | ✅ | ✅ | ✅ |
+| Calendar — edit activity | — | ✅ | ✅ |
+| Settings — theme toggle | ✅ | ✅ | ✅ |
+| Settings — language switch (KH/EN) | ✅ | ✅ | ✅ |
+| Settings — CSV export | ✅ | ✅ | ✅ |
+| Settings — JSON backup/restore | ✅ | ✅ | ✅ |
+| Settings — clear all data | ✅ | ✅ | ✅ |
+| Dark mode | ✅ (CSS vars) | ✅ | ✅ |
+
+---
+
 ## Project Overview
 
 SmartFarm Mobile is an offline-first farm-management app for Cambodian small-scale farmers, built for both iOS (SwiftUI) and Android (Jetpack Compose). Both platforms deliver the same feature set with a Khmer-first UI and no internet dependency for core features.
@@ -16,7 +54,7 @@ SmartFarm Mobile is an offline-first farm-management app for Cambodian small-sca
 | **Min OS** | iOS 14.0 | Android 8.0 (SDK 26) |
 | **Localization** | Khmer + English | Khmer + English |
 | **Dependencies** | None (zero pods/SPM) | Room, Hilt, Navigation Compose, core-splashscreen |
-| **Completion** | ~90% | ~95% |
+| **Completion** | ~100% ✅ | ~100% ✅ |
 
 ---
 
@@ -47,7 +85,11 @@ SmartFarm Mobile is an offline-first farm-management app for Cambodian small-sca
 | **Backup** — JSON restore | ✅ | ✅ |
 | **Settings** tab | ✅ | ✅ |
 | **Khmer UI** — full localization | ✅ | ✅ |
-| **Dark mode** | 🔴 | ✅ |
+| **Dark mode** | ✅ | ✅ |
+| **Language switch (KH/EN)** | ✅ | ✅ |
+| **Localizable.strings / strings.xml complete** | ✅ | ✅ |
+| **App icon** | ✅ | ✅ |
+| **Custom fonts (Hanuman + Inter)** | ✅ | ✅ |
 
 **Legend:** ✅ Done · 🟡 Partial · 🔴 Not started
 
@@ -81,7 +123,7 @@ Both platforms implement the same logical entities. Field names map to platform 
 | `isNotified` / `hasReminder` | Bool | |
 | `reminderOffsetMinutes` | Int | default 1440 (1 day) |
 
-> **Rule:** Amount is always stored in KHR. Conversion to USD is display-only at 4,100 KHR/USD.
+> **Rule:** Amount is always stored in KHR. Conversion to USD is display-only at 4,000 KHR/USD.
 
 ---
 
@@ -119,8 +161,8 @@ Tab 4 — ⚙️ Settings    (ការកំណត់)   [iOS only — Android 
 
 ## iOS Build Plan
 
-> Full phase breakdown: `smartfarm-ios/.claude/plan.md`  
-> Environment rules: `smartfarm-ios/.claude/memory.md`
+> Environment rules and code templates: `.claude/skills/ios.md`  
+> Design spec: `FIGMA_BRIEF.md` Part A (A0–A7)
 
 ### Phase Summary
 
@@ -166,7 +208,9 @@ Tab 4 — ⚙️ Settings    (ការកំណត់)   [iOS only — Android 
 
 ## Android Build Plan
 
-> Source: `smartfarm-android/app/src/main/java/com/smartfarm/android/`
+> Source: `smartfarm-android/app/src/main/java/com/smartfarm/android/`  
+> Environment rules and code templates: `.claude/skills/android.md`  
+> Design spec: `FIGMA_BRIEF.md` Part B (B0–B7)
 
 ### What Is Done
 
@@ -199,11 +243,59 @@ Tab 4 — ⚙️ Settings    (ការកំណត់)   [iOS only — Android 
 - `CalendarScreen` — `EventFormDialog(editingEvent:)` pre-populated; edit icon on each event item
 - `strings.xml` + `strings-km.xml` — `edit_entry`, `edit_event`
 
-### Remaining Work
+### Sprint 7 — iOS Dark Mode (COMPLETE ✅)
 
-#### Phase F — UI Polish (optional)
-- Consistent use of design system tokens
-- iOS Dark mode — full adaptive color pass (most screens already use system colors)
+All screens now use `Color("PrimaryGreen")`, `Color("ExpenseRed")`, and semantic system colors.
+Both `PrimaryGreen.colorset` and `ExpenseRed.colorset` exist in `Assets.xcassets`. No hardcoded hex values remain.
+
+### Sprint 8 — Bug Fixes + Language Support (COMPLETE ✅)
+
+All 6 issues fixed: language toggle (KH/EN) in Settings on both platforms, full Khmer localization, Android dialog layout, bar chart reactivity, custom splash with Khmer text, USD rate corrected to 4,000.
+
+### Sprint 10 — Bug Fixes + Web Dashboard (COMPLETE ✅)
+
+**iOS:**
+- `DashboardView` — fixed stale `RecentTransactionRow` / `UpcomingActivityRow`: extract primitive value types (`title`, `category`, `formattedAmount`, `isIncome`, etc.) in the `ForEach` closure instead of passing `NSManagedObject` references; SwiftUI now sees changed structs and re-renders rows immediately
+- `FarmViewModel` — added `@Published var dataVersion: Int`, incremented in `fetchAll()`; `List` uses `.id(vm.dataVersion)` to force full rebuild on any data change
+- `MonthlyChartView` — fixed bar chart: replaced broken `ZStack(alignment: .bottom) + .offset()` with `ZStack(alignment: .topLeading) + .position(x:y:)` to correctly bottom-anchor bars
+- `FinanceListView` / `CalendarTabView` — fixed multiple `.sheet` bug (iOS 14 only honors the last one): unified into a single `.sheet(item:)` using a `FinanceSheet` / `CalendarSheet` enum
+- `MainTabView` — added `.id(appLanguage)` to `TabView` to force tab bar recreation when language changes
+- `FarmViewModel.showKHR` — persisted to `UserDefaults` so KHR/USD preference survives tab switches and relaunches
+
+**Android:**
+- `UserPreferences` — new `@Singleton` class backed by `SharedPreferences`, exposes `showKhr: StateFlow<Boolean>`; injected into `FinanceViewModel` + `DashboardViewModel` via Hilt so currency preference is shared and persists
+- All hardcoded Khmer strings moved to `strings.xml` / `strings-km/strings.xml`
+
+**Web:**
+- Added Dashboard tab (📊) as the first tab — monthly balance hero card, 6-month income/expense bar chart, upcoming 7-day activities, recent transactions
+- Fixed seed data: replaced hardcoded April 2026 dates with `_d(offset)` helper producing today-relative local dates
+- Fixed timezone bug in Dashboard: `sameMonth()` and upcoming filter now parse `"YYYY-MM-DD"` by splitting on `-` instead of `new Date(dateStr)` (UTC midnight → local time shift was filtering out current-month data)
+- Bumped localStorage keys to `sf_txns_v2` / `sf_acts_v2` to evict stale seed data from earlier sessions
+
+### Sprint 9 — App Icons + Custom Fonts (COMPLETE ✅)
+
+| # | Task | Platform | Details |
+|---|------|----------|---------|
+| 1 | App icons from `AppIcons/` | iOS + Android | Replaced AppIcon.appiconset (18 sizes) + mipmap-\* (5 densities, square + round) |
+| 2 | Khmer font: Hanuman (Regular + Bold) | iOS + Android | Google Fonts OFL, ~120 KB each |
+| 3 | English font: Inter (Regular/Medium/SemiBold/Bold) | iOS + Android | rsms/inter v4.0, ~400 KB each |
+| 4 | Language-aware font switching | iOS + Android | iOS: `AppFont.regular/medium/semibold/bold(size:)` reads `appLanguage`; Android: `smartFarmTypography(language)` in Theme |
+| 5 | Splash icon updated to match app icon | iOS + Android | iOS: `Image("SplashLogo")` from `Assets.xcassets/SplashLogo.imageset/`; Android: `R.drawable.ic_launcher_splash` copied from xxxhdpi mipmap |
+
+**iOS font registration:** `CTFontManagerRegisterFontsForURL` called in `SmartFarmApp.init()`. Fonts in `SmartFarm/Fonts/`, registered in Xcode Resources build phase.
+
+**Android font registration:** `res/font/` resource directory. `HanumanFontFamily` + `InterFontFamily` defined in `Type.kt`, switched via `LocaleHelper.getLanguage()` in `SmartFarmTheme`.
+
+### Sprint 8 — Bug Fixes + Language Support
+
+| # | Issue | Platform | Notes |
+|---|-------|----------|-------|
+| 1 | Language switch in Settings (KH ↔ EN) | iOS + Android | Settings screen has no toggle yet; locale is hardcoded |
+| 2 | Full localization (`Localizable.strings` / `strings.xml`) | iOS + Android | iOS has zero `.strings` files; Android `values-km` incomplete |
+| 3 | Android Add/Edit dialog UI — TextField not full-width, layout broken | Android | ModalBottomSheet fields need `fillMaxWidth()` + proper spacing |
+| 4 | Bar chart not updating when data changes | iOS + Android | iOS: computed property not `@Published`; Android: chart not collecting from StateFlow |
+| 5 | Android splash screen missing Khmer/English text | Android | `core-splashscreen` cannot render text — needs custom Composable splash after system splash |
+| 6 | USD conversion rate wrong | iOS + Android | Was 4,100 → correct rate is **4,000 KHR/USD** |
 
 ---
 
@@ -216,7 +308,7 @@ Tab 4 — ⚙️ Settings    (ការកំណត់)   [iOS only — Android 
 - [ ] Backup JSON can restore on a fresh install
 - [ ] UI renders correctly in light mode and dark mode
 - [ ] All visible labels are in Khmer (with English fallback)
-- [ ] Amount display toggles correctly between KHR and USD at 4,100 rate
+- [ ] Amount display toggles correctly between KHR and USD at 4,000 rate
 - [ ] No crashes on empty state (no transactions, no activities)
 
 ---
@@ -234,10 +326,13 @@ Tab 4 — ⚙️ Settings    (ការកំណត់)   [iOS only — Android 
 ```
 Mobile/
 ├── PLAN.md                  ← this file
+├── FIGMA_BRIEF.md           ← native design spec (iOS HIG + Material 3), all screens
+├── .claude/
+│   ├── memory.md            ← shared rules, data models, team
+│   └── skills/
+│       ├── ios.md           ← iOS environment, templates, patterns
+│       └── android.md       ← Android environment, templates, patterns
 ├── smartfarm-ios/
-│   ├── .claude/
-│   │   ├── plan.md          ← iOS phase details + code templates
-│   │   └── memory.md        ← iOS environment decisions
 │   └── SmartFarm/           ← Xcode project source
 └── smartfarm-android/
     └── app/src/main/        ← Android source

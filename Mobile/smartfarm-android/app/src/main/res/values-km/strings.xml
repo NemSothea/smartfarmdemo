@@ -9,6 +9,8 @@
     <string name="nav_settings">ការកំណត់</string>
 
     <!-- Finance -->
+    <string name="search_placeholder">ស្វែងរក...</string>
+    <string name="no_results">រកមិនឃើញ</string>
     <string name="income">ចំណូល</string>
     <string name="expense">ចំណាយ</string>
     <string name="balance">តុល្យភាព</string>
@@ -30,24 +32,33 @@
     <string name="no_events_today">គ្មានសកម្មភាពថ្ងៃនេះ</string>
 
     <!-- Dashboard -->
+    <string name="recent_transactions">ប្រតិបត្តិការថ្មីៗ</string>
     <string name="upcoming_events">ព្រឹត្តិការណ៍ខាងមុខ (៧ ថ្ងៃ)</string>
     <string name="no_upcoming_events">មិនមានព្រឹត្តិការណ៍នៅសប្ដាហ៍នេះ។</string>
 
     <!-- Settings -->
-    <string name="section_export">ជំរើសសំណួរ</string>
-    <string name="export_csv">ส่งออកជា CSV</string>
+    <string name="section_appearance">ចំណូលចិត្ត</string>
+    <string name="theme">រចនាបថ</string>
+    <string name="theme_light">☀️ ភ្លឺ</string>
+    <string name="theme_dark">🌙 ងងឹត</string>
+    <string name="clear_all">លុបទិន្នន័យទាំងអស់</string>
+    <string name="clear_all_confirm_title">លុបទិន្នន័យទាំងអស់?</string>
+    <string name="clear_all_confirm_body">ប្រតិបត្តិការ និងសកម្មភាពទាំងអស់នឹងត្រូវលុប។ មិនអាចទាញយកមកវិញបានទេ។</string>
+    <string name="version">SmartFarm · កំណែ 1.0.0</string>
+    <string name="section_export">នាំចេញ</string>
+    <string name="export_csv">នាំចេញជា CSV</string>
     <string name="export_csv_sub">ហិរញ្ញវត្ថុទាំងអស់ → Excel / Sheets</string>
-    <string name="export_pdf">ส่งออក PDF Report</string>
+    <string name="export_pdf">នាំចេញ PDF Report</string>
     <string name="export_pdf_sub">របាយការណ៍ PDF ប្រចាំខែ</string>
     <string name="section_backup">ការបម្រុងទុក</string>
-    <string name="backup_export">Export JSON Backup</string>
+    <string name="backup_export">នាំចេញ JSON Backup</string>
     <string name="backup_export_sub">រក្សាទុកទិន្នន័យទាំងអស់ជា JSON</string>
-    <string name="backup_restore">Restore from Backup</string>
+    <string name="backup_restore">ស្ដារពី Backup</string>
     <string name="backup_restore_sub">ស្ដារទិន្នន័យពី JSON backup</string>
     <string name="section_stats">ស្ថិតិ</string>
     <string name="stat_transactions">ប្រតិបត្តិការ</string>
     <string name="stat_activities">សកម្មភាព</string>
-    <string name="restore_confirm_title">Restore Backup?</string>
+    <string name="restore_confirm_title">ស្ដារ Backup?</string>
     <string name="restore_confirm_body">ទិន្នន័យបច្ចុប្បន្នទាំងអស់នឹងត្រូវជំនួស។ តើអ្នកប្រាកដទេ?</string>
     <string name="restore">ស្ដារ</string>
 
@@ -64,6 +75,13 @@
     <string name="onboarding_sub_3">ទិន្នន័យទាំងអស់ត្រូវបានរក្សាទុក\nក្នុងឧបករណ៍របស់អ្នក</string>
     <string name="onboarding_next">បន្ទាប់</string>
     <string name="onboarding_start">ចាប់ផ្ដើម</string>
+
+    <!-- Splash -->
+    <string name="splash_tagline">កសិកម្មឆ្លាតវៃ ងាយស្រួល</string>
+    <!-- Language -->
+    <string name="language">ភាសា</string>
+    <string name="lang_khmer">🇰🇭 ខ្មែរ</string>
+    <string name="lang_english">🇬🇧 English</string>
 
     <!-- Common -->
     <string name="save">រក្សាទុក</string>

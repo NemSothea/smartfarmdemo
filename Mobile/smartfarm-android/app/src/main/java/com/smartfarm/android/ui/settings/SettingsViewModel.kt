@@ -9,6 +9,7 @@ import com.smartfarm.android.data.repository.EventRepository
 import com.smartfarm.android.data.repository.FinanceRepository
 import com.smartfarm.android.util.BackupManager
 import com.smartfarm.android.util.ExportManager
+import com.smartfarm.android.util.LocaleHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
@@ -19,7 +20,8 @@ data class SettingsUiState(
     val txCount: Int = 0,
     val evCount: Int = 0,
     val isLoading: Boolean = false,
-    val message: String? = null
+    val message: String? = null,
+    val language: String = ""
 )
 
 @HiltViewModel
@@ -33,11 +35,18 @@ class SettingsViewModel @Inject constructor(
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     init {
+        _uiState.update { it.copy(language = LocaleHelper.getLanguage(context)) }
         viewModelScope.launch {
             combine(financeRepo.getAll(), eventRepo.getAll()) { tx, ev ->
                 _uiState.value.copy(txCount = tx.size, evCount = ev.size)
             }.collect { _uiState.value = it }
         }
+    }
+
+    fun setLanguage(language: String, onRestart: () -> Unit) {
+        LocaleHelper.saveLanguage(context, language)
+        _uiState.update { it.copy(language = language) }
+        onRestart()
     }
 
     fun exportCsv(onUri: (Uri) -> Unit) = viewModelScope.launch {
@@ -70,6 +79,13 @@ class SettingsViewModel @Inject constructor(
         } catch (e: Exception) {
             _uiState.update { it.copy(isLoading = false, message = "មានបញ្ហា: ${e.message}") }
         }
+    }
+
+    fun clearAll() = viewModelScope.launch {
+        _uiState.update { it.copy(isLoading = true) }
+        financeRepo.deleteAll()
+        eventRepo.deleteAll()
+        _uiState.update { it.copy(isLoading = false, message = "លុបទិន្នន័យទាំងអស់បានជោគជ័យ!") }
     }
 
     fun clearMessage() = _uiState.update { it.copy(message = null) }

@@ -2,150 +2,155 @@ import SwiftUI
 
 struct DashboardView: View {
     @EnvironmentObject var vm: FarmViewModel
+    @AppStorage("appLanguage") private var appLanguage: String = "km"
+
+    private var monthName: String {
+        let fmt = DateFormatter()
+        fmt.dateFormat = "MMMM yyyy"
+        fmt.locale = Locale(identifier: appLanguage)
+        return "ខែ \(fmt.string(from: Date()))"
+    }
 
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 16) {
-                    // Profit summary card
-                    ProfitCard(
-                        income: vm.currentMonthIncome,
-                        expense: vm.currentMonthExpense,
-                        profit: vm.currentMonthProfit,
-                        format: vm.format
-                    )
-
-                    // Upcoming activities
-                    if !vm.upcomingActivities.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("សកម្មភាពខាងមុខ")
-                                .font(.headline)
-                                .padding(.horizontal)
-
-                            ForEach(vm.upcomingActivities, id: \.id) { act in
-                                ActivityRow(activity: act)
-                            }
+            List {
+                // Monthly balance hero
+                Section {
+                    VStack(spacing: 0) {
+                        VStack(spacing: 4) {
+                            Text(monthName)
+                                .font(AppFont.subheadline())
+                                .foregroundColor(.secondary)
+                            Text(vm.format(khr: vm.currentMonthProfit))
+                                .font(AppFont.bold(size: 32))
+                                .foregroundColor(vm.currentMonthProfit >= 0 ? Color("PrimaryGreen") : Color("ExpenseRed"))
                         }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+
+                        Divider()
+
+                        HStack(spacing: 0) {
+                            SummaryHalf(
+                                dot: Color("PrimaryGreen"),
+                                label: L10n.t("finance.income"),
+                                value: vm.format(khr: vm.currentMonthIncome),
+                                color: Color("PrimaryGreen")
+                            )
+                            Divider().frame(height: 32)
+                            SummaryHalf(
+                                dot: Color("ExpenseRed"),
+                                label: L10n.t("finance.expense"),
+                                value: vm.format(khr: vm.currentMonthExpense),
+                                color: Color("ExpenseRed")
+                            )
+                        }
+                        .padding(.vertical, 12)
                     }
+                }
 
-                    // Recent transactions
-                    if !vm.transactions.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("ប្រតិបត្តិការថ្មីៗ")
-                                .font(.headline)
-                                .padding(.horizontal)
-
-                            ForEach(vm.transactions.prefix(5), id: \.id) { tx in
-                                TransactionRow(tx: tx, format: vm.format)
-                            }
+                // Upcoming activities
+                if !vm.upcomingActivities.isEmpty {
+                    Section(L10n.t("dashboard.upcoming")) {
+                        ForEach(vm.upcomingActivities.prefix(3), id: \.id) { act in
+                            UpcomingActivityRow(
+                                type: act.type ?? "",
+                                title: act.title ?? "",
+                                date: act.date
+                            )
                         }
                     }
                 }
-                .padding(.vertical)
+
+                // Recent transactions
+                if !vm.transactions.isEmpty {
+                    Section(L10n.t("dashboard.recent")) {
+                        ForEach(vm.transactions.prefix(3), id: \.id) { tx in
+                            RecentTransactionRow(
+                                title: tx.title ?? "",
+                                category: tx.category ?? "",
+                                formattedAmount: vm.format(khr: tx.amount),
+                                isIncome: tx.type == "income"
+                            )
+                        }
+                    }
+                }
             }
-            .navigationTitle("ផ្ទាំងគ្រប់គ្រង")
+            .id(vm.dataVersion)
+            .listStyle(InsetGroupedListStyle())
+            .navigationTitle(L10n.t("dashboard.title"))
         }
     }
 }
 
 // MARK: - Sub-views
 
-private struct ProfitCard: View {
-    let income: Double
-    let expense: Double
-    let profit: Double
-    let format: (Double) -> String
+private struct SummaryHalf: View {
+    let dot: Color
+    let label: String
+    let value: String
+    let color: Color
 
     var body: some View {
-        VStack(spacing: 12) {
-            Text("ខែនេះ")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-
-            Text(format(profit))
-                .font(.system(size: 32, weight: .bold))
-                .foregroundColor(profit >= 0 ? Color("PrimaryGreen") : .red)
-
-            HStack(spacing: 24) {
-                VStack {
-                    Text("ចំណូល")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text(format(income))
-                        .font(.subheadline)
-                        .foregroundColor(Color("PrimaryGreen"))
-                }
-                Divider().frame(height: 32)
-                VStack {
-                    Text("ចំណាយ")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    Text(format(expense))
-                        .font(.subheadline)
-                        .foregroundColor(.red)
-                }
+        VStack(spacing: 4) {
+            HStack(spacing: 5) {
+                Circle().fill(dot).frame(width: 8, height: 8)
+                Text(label).font(AppFont.caption()).foregroundColor(.secondary)
             }
+            Text(value).font(AppFont.semibold(size: 15)).foregroundColor(color)
         }
-        .padding()
         .frame(maxWidth: .infinity)
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
-        .padding(.horizontal)
     }
 }
 
-private struct ActivityRow: View {
-    let activity: FarmActivity
+private struct UpcomingActivityRow: View {
+    let type: String
+    let title: String
+    let date: Date?
 
     var body: some View {
-        HStack {
-            Text(activity.type ?? "")
-                .font(.caption)
+        HStack(spacing: 12) {
+            Text(type)
+                .font(AppFont.semibold(size: 12))
+                .foregroundColor(.white)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
-                .background(Color("PrimaryGreen").opacity(0.15))
+                .background(Color("PrimaryGreen"))
                 .cornerRadius(6)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(activity.title ?? "")
-                    .font(.subheadline)
-                if let date = activity.date {
-                    Text(date, style: .date)
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
+                Text(title)
+                    .font(AppFont.semibold(size: 15))
             }
             Spacer()
+            if let date = date {
+                Text(date, style: .date)
+                    .font(AppFont.caption())
+                    .foregroundColor(.secondary)
+            }
         }
-        .padding(.horizontal)
-        .padding(.vertical, 6)
-        .background(Color(.systemBackground))
+        .padding(.vertical, 2)
     }
 }
 
-private struct TransactionRow: View {
-    let tx: Transaction
-    let format: (Double) -> String
+private struct RecentTransactionRow: View {
+    let title: String
+    let category: String
+    let formattedAmount: String
+    let isIncome: Bool
 
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text(tx.title ?? "")
-                    .font(.subheadline)
-                Text(tx.category ?? "")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Text(title).font(AppFont.semibold(size: 15))
+                Text(category).font(AppFont.caption()).foregroundColor(.secondary)
             }
             Spacer()
-            Text(format(tx.amount))
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(tx.type == "income" ? Color("PrimaryGreen") : .red)
+            Text(formattedAmount)
+                .font(AppFont.semibold(size: 15))
+                .foregroundColor(isIncome ? Color("PrimaryGreen") : Color("ExpenseRed"))
         }
-        .padding(.horizontal)
-        .padding(.vertical, 6)
-        .background(Color(.systemBackground))
+        .padding(.vertical, 2)
     }
 }
 

@@ -2,29 +2,31 @@ import SwiftUI
 
 struct MainTabView: View {
     @EnvironmentObject var vm: FarmViewModel
+    @AppStorage("appLanguage") private var appLanguage: String = "km"
 
     var body: some View {
         TabView {
             DashboardView()
                 .tabItem {
-                    Label("ផ្ទាំងគ្រប់គ្រង", systemImage: "chart.bar.fill")
+                    Label(L10n.t("tab.dashboard"), systemImage: "chart.bar.fill")
                 }
 
             FinanceListView()
                 .tabItem {
-                    Label("ហិរញ្ញវត្ថុ", systemImage: "dollarsign.circle.fill")
+                    Label(L10n.t("tab.finance"), systemImage: "dollarsign.circle.fill")
                 }
 
             CalendarTabView()
                 .tabItem {
-                    Label("ប្រតិទិន", systemImage: "calendar")
+                    Label(L10n.t("tab.calendar"), systemImage: "calendar")
                 }
 
             SettingsView()
                 .tabItem {
-                    Label("ការកំណត់", systemImage: "gearshape.fill")
+                    Label(L10n.t("tab.settings"), systemImage: "gearshape.fill")
                 }
         }
+        .id(appLanguage)
         .accentColor(Color("PrimaryGreen"))
         .onAppear {
             NotificationManager.requestPermission()

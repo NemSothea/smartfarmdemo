@@ -1,27 +1,28 @@
 import SwiftUI
 
 struct MonthlyChartView: View {
-    let data: [FarmViewModel.MonthBar]
-    let format: (Double) -> String
+    @EnvironmentObject var vm: FarmViewModel
+    @AppStorage("appLanguage") private var appLanguage: String = "km"
 
     private var maxVal: Double {
-        data.flatMap { [$0.income, $0.expense] }.max() ?? 1
+        vm.monthlyChartData.flatMap { [$0.income, $0.expense] }.max() ?? 1
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("ក្រាហ្វប្រចាំខែ (៦ ខែចុងក្រោយ)")
+            Text(L10n.t("finance.chart"))
                 .font(.subheadline).fontWeight(.semibold)
                 .padding(.horizontal)
 
             GeometryReader { geo in
+                let data = vm.monthlyChartData
                 let w = geo.size.width
                 let h = geo.size.height - 20
                 let groupW = w / CGFloat(data.count)
                 let barW = groupW * 0.28
                 let gap  = groupW * 0.04
 
-                ZStack(alignment: .bottom) {
+                ZStack(alignment: .topLeading) {
                     // Grid lines
                     ForEach([0.25, 0.5, 0.75, 1.0], id: \.self) { frac in
                         Path { p in
@@ -31,26 +32,24 @@ struct MonthlyChartView: View {
                         .stroke(Color.secondary.opacity(0.15), lineWidth: 0.5)
                     }
 
-                    // Bars
+                    // Bars — .position(x:y:) sets the view's CENTER at absolute coords
                     ForEach(data.indices, id: \.self) { i in
                         let groupX = CGFloat(i) * groupW + groupW * 0.08
 
-                        // Income bar
                         let incH = maxVal > 0 ? CGFloat(data[i].income / maxVal) * h : 0
                         Rectangle()
                             .fill(Color("PrimaryGreen"))
-                            .frame(width: barW, height: max(incH, 1))
-                            .offset(x: groupX, y: -(h - incH) / 2)
+                            .frame(width: barW, height: max(incH, 2))
+                            .position(x: groupX + barW / 2, y: h - max(incH, 2) / 2)
 
-                        // Expense bar
                         let expH = maxVal > 0 ? CGFloat(data[i].expense / maxVal) * h : 0
                         Rectangle()
                             .fill(Color.red.opacity(0.8))
-                            .frame(width: barW, height: max(expH, 1))
-                            .offset(x: groupX + barW + gap, y: -(h - expH) / 2)
+                            .frame(width: barW, height: max(expH, 2))
+                            .position(x: groupX + barW + gap + barW / 2, y: h - max(expH, 2) / 2)
                     }
                 }
-                .frame(height: h)
+                .frame(width: w, height: h)
 
                 // Month labels
                 HStack(spacing: 0) {
@@ -69,8 +68,8 @@ struct MonthlyChartView: View {
             // Legend
             HStack(spacing: 16) {
                 Spacer()
-                LegendDot(color: Color("PrimaryGreen"), label: "ចំណូល")
-                LegendDot(color: .red, label: "ចំណាយ")
+                LegendDot(color: Color("PrimaryGreen"), label: L10n.t("finance.income"))
+                LegendDot(color: .red, label: L10n.t("finance.expense"))
                 Spacer()
             }
             .font(.caption2)

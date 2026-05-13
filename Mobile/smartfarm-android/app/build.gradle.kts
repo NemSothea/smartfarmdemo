@@ -61,6 +61,7 @@ dependencies {
 
     implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.material)
 
     implementation(libs.kotlinx.coroutines.android)
 

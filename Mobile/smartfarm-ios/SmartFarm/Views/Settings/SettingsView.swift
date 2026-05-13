@@ -2,9 +2,12 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var vm: FarmViewModel
+    @AppStorage("isDarkMode") private var isDarkMode = false
+    @AppStorage("appLanguage") private var appLanguage: String = "km"
     @State private var showExport = false
     @State private var showDocPicker = false
     @State private var showRestoreConfirm = false
+    @State private var showClearConfirm = false
     @State private var showResultAlert = false
     @State private var resultMessage = ""
     @State private var exportItems: [Any] = []
@@ -13,67 +16,118 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             List {
-                // Finance export
-                Section("ជំរើស​ ហិរញ្ញវត្ថុ") {
-                    Button { prepareCSV() } label: {
-                        Label("ส่งออកជា CSV", systemImage: "tablecells")
-                    }
-                    Button { preparePDF() } label: {
-                        Label("ស្នើ​ PDF Report", systemImage: "doc.richtext")
-                    }
-                }
-
-                // Backup / Restore
-                Section("ការបម្រុងទុក") {
-                    Button { prepareBackup() } label: {
-                        Label("Export JSON Backup", systemImage: "square.and.arrow.up")
-                    }
-                    Button { showDocPicker = true } label: {
-                        Label("Restore from Backup", systemImage: "square.and.arrow.down")
-                    }
-                }
-
-                // App stats
-                Section("ស្ថិតិ") {
+                // Appearance
+                Section(L10n.t("settings.appearance")) {
                     HStack {
-                        Text("ប្រតិបត្តិការ")
+                        Text(L10n.t("settings.theme"))
+                        Spacer()
+                        Picker("", selection: $isDarkMode) {
+                            Text(L10n.t("settings.light")).tag(false)
+                            Text(L10n.t("settings.dark")).tag(true)
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                        .frame(width: 160)
+                    }
+                    HStack {
+                        Text(L10n.t("settings.language"))
+                        Spacer()
+                        Picker("", selection: $appLanguage) {
+                            Text(L10n.t("settings.langKH")).tag("km")
+                            Text(L10n.t("settings.langEN")).tag("en")
+                        }
+                        .pickerStyle(SegmentedPickerStyle())
+                        .frame(width: 160)
+                    }
+                }
+
+                // Stats
+                Section(L10n.t("settings.stats")) {
+                    HStack {
+                        Text(L10n.t("settings.txCount"))
                         Spacer()
                         Text("\(vm.transactions.count)").foregroundColor(.secondary)
                     }
                     HStack {
-                        Text("សកម្មភាព")
+                        Text(L10n.t("settings.actCount"))
                         Spacer()
                         Text("\(vm.activities.count)").foregroundColor(.secondary)
                     }
-                    Toggle("បង្ហាញជា KHR", isOn: $vm.showKHR)
+                    Toggle(L10n.t("settings.showKHR"), isOn: $vm.showKHR)
+                }
+
+                // Export
+                Section(L10n.t("settings.export")) {
+                    Button { prepareCSV() } label: {
+                        Label(L10n.t("settings.exportCSV"), systemImage: "tablecells")
+                    }
+                    Button { preparePDF() } label: {
+                        Label(L10n.t("settings.exportPDF"), systemImage: "doc.richtext")
+                    }
+                }
+
+                // Backup
+                Section(L10n.t("settings.backup")) {
+                    Button { prepareBackup() } label: {
+                        Label(L10n.t("settings.backupJSON"), systemImage: "arrow.down.circle")
+                    }
+                    Button { showDocPicker = true } label: {
+                        Label(L10n.t("settings.restore"), systemImage: "arrow.up.circle")
+                    }
+                }
+
+                // Danger
+                Section {
+                    Button(role: .destructive) {
+                        showClearConfirm = true
+                    } label: {
+                        HStack {
+                            Spacer()
+                            Text(L10n.t("settings.clearAll"))
+                            Spacer()
+                        }
+                    }
+                }
+
+                // Version footer
+                Section {
+                    HStack {
+                        Spacer()
+                        Text(L10n.t("settings.version"))
+                            .font(AppFont.caption())
+                            .foregroundColor(.secondary)
+                        Spacer()
+                    }
                 }
             }
-            .navigationTitle("ការកំណត់")
-            // Export sheet
+            .navigationTitle(L10n.t("settings.title"))
             .sheet(isPresented: $showExport) {
                 ActivityView(items: exportItems)
             }
-            // Document picker for restore
             .sheet(isPresented: $showDocPicker) {
                 DocumentPickerView { data in
                     pendingRestoreData = data
                     showRestoreConfirm = true
                 }
             }
-            // Restore confirmation
-            .alert("Restore Backup?", isPresented: $showRestoreConfirm) {
-                Button("Restore", role: .destructive) {
+            .alert(L10n.t("alert.restoreTitle"), isPresented: $showRestoreConfirm) {
+                Button(L10n.t("alert.restoreBtn"), role: .destructive) {
                     if let data = pendingRestoreData { performRestore(data) }
                 }
-                Button("Cancel", role: .cancel) {}
+                Button(L10n.t("form.cancel"), role: .cancel) {}
             } message: {
-                Text("ទិន្នន័យបច្ចុប្បន្នទាំងអស់នឹងត្រូវជំនួស។ តើអ្នកប្រាកដទេ?")
+                Text(L10n.t("alert.restoreBody"))
             }
-            // Result alert
+            .alert(L10n.t("alert.clearTitle"), isPresented: $showClearConfirm) {
+                Button(L10n.t("alert.clearBtn"), role: .destructive) { performClearAll() }
+                Button(L10n.t("form.cancel"), role: .cancel) {}
+            } message: {
+                Text(L10n.t("alert.clearBody"))
+            }
             .alert(resultMessage, isPresented: $showResultAlert) {
-                Button("OK") {}
+                Button(L10n.t("alert.ok")) {}
             }
         }
+        .preferredColorScheme(isDarkMode ? .dark : .light)
     }
 
     // MARK: - Actions
@@ -119,6 +173,11 @@ struct SettingsView: View {
             resultMessage = "មានបញ្ហា: \(error.localizedDescription)"
         }
         showResultAlert = true
+    }
+
+    private func performClearAll() {
+        vm.transactions.forEach { vm.deleteTransaction($0) }
+        vm.activities.forEach { vm.deleteActivity($0) }
     }
 }
 

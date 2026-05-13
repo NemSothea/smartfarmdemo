@@ -11,16 +11,35 @@ let activityTypeColors: [String: Color] = [
     "ត្រួតពិនិត្យ":  .gray
 ]
 
+private enum CalendarSheet: Identifiable {
+    case add
+    case edit(FarmActivity)
+    var id: String {
+        switch self {
+        case .add: return "add"
+        case .edit(let act): return act.id?.uuidString ?? "edit"
+        }
+    }
+}
+
 struct CalendarTabView: View {
     @EnvironmentObject var vm: FarmViewModel
+    @AppStorage("appLanguage") private var appLanguage: String = "km"
     @State private var displayedMonthDate: Date = {
         let cal = Calendar.current
         return cal.date(from: cal.dateComponents([.year, .month], from: Date()))!
     }()
     @State private var selectedDate: Date = Date()
-    @State private var showAdd = false
-    @State private var editingActivity: FarmActivity? = nil
-    @State private var showEditSheet = false
+    @State private var activeSheet: CalendarSheet? = nil
+    @State private var searchText = ""
+
+    private var searchResults: [FarmActivity]? {
+        let q = searchText.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !q.isEmpty else { return nil }
+        return vm.activities.filter {
+            ($0.title ?? "").lowercased().contains(q) || ($0.type ?? "").lowercased().contains(q)
+        }.sorted { ($0.date ?? Date()) < ($1.date ?? Date()) }
+    }
 
     private let activityTypes = ["ដំណាំ", "ស្រោចទឹក", "ដាក់ជី", "ថែទាំ", "ការពារ", "ច្រូតកាត់", "ប្រមូលផល", "ត្រួតពិនិត្យ"]
 
@@ -34,56 +53,89 @@ struct CalendarTabView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                MonthHeader(displayedMonthDate: $displayedMonthDate, selectedDate: $selectedDate)
-
-                MonthGridView(
-                    activities: vm.activities,
-                    displayedMonthDate: displayedMonthDate,
-                    selectedDate: $selectedDate
-                )
-                .padding(.horizontal)
-                .padding(.bottom, 8)
-
-                Divider()
-
-                if activitiesForSelectedDay.isEmpty {
-                    Spacer()
-                    Text("គ្មានសកម្មភាពថ្ងៃនេះ").foregroundColor(.secondary)
-                    Spacer()
-                } else {
-                    List {
-                        ForEach(activitiesForSelectedDay, id: \.id) { act in
-                            ActivityRowCell(
-                                activity: act,
-                                onToggle: { vm.toggleDone(act) },
-                                onEdit: {
-                                    editingActivity = act
-                                    showEditSheet = true
-                                }
-                            )
-                        }
-                        .onDelete { indices in
-                            indices.forEach { vm.deleteActivity(activitiesForSelectedDay[$0]) }
+                // Search bar
+                HStack {
+                    Image(systemName: "magnifyingglass").foregroundColor(.secondary)
+                    TextField(L10n.t("calendar.search"), text: $searchText)
+                    if !searchText.isEmpty {
+                        Button(action: { searchText = "" }) {
+                            Image(systemName: "xmark.circle.fill").foregroundColor(.secondary)
                         }
                     }
-                    .listStyle(PlainListStyle())
+                }
+                .padding(10)
+                .background(Color(.systemGray6))
+                .cornerRadius(10)
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
+
+                if let results = searchResults {
+                    // Search results — flat list across all dates
+                    if results.isEmpty {
+                        Spacer()
+                        Text("រកមិនឃើញ").foregroundColor(.secondary)
+                        Spacer()
+                    } else {
+                        List {
+                            ForEach(results, id: \.id) { act in
+                                VStack(alignment: .leading, spacing: 2) {
+                                    ActivityRowCell(activity: act, onToggle: { vm.toggleDone(act) }, onEdit: {
+                                        activeSheet = .edit(act)
+                                    })
+                                    if let date = act.date {
+                                        Text(date, style: .date).font(AppFont.caption2()).foregroundColor(.secondary)
+                                            .padding(.leading, 16)
+                                    }
+                                }
+                            }
+                            .onDelete { indices in indices.forEach { vm.deleteActivity(results[$0]) } }
+                        }
+                        .listStyle(PlainListStyle())
+                    }
+                } else {
+                    MonthHeader(displayedMonthDate: $displayedMonthDate, selectedDate: $selectedDate)
+                    MonthGridView(
+                        activities: vm.activities,
+                        displayedMonthDate: displayedMonthDate,
+                        selectedDate: $selectedDate
+                    )
+                    .padding(.horizontal)
+                    .padding(.bottom, 8)
+                    Divider()
+                    if activitiesForSelectedDay.isEmpty {
+                        Spacer()
+                        Text(L10n.t("calendar.empty")).foregroundColor(.secondary)
+                        Spacer()
+                    } else {
+                        List {
+                            ForEach(activitiesForSelectedDay, id: \.id) { act in
+                                ActivityRowCell(
+                                    activity: act,
+                                    onToggle: { vm.toggleDone(act) },
+                                    onEdit: { activeSheet = .edit(act) }
+                                )
+                            }
+                            .onDelete { indices in
+                                indices.forEach { vm.deleteActivity(activitiesForSelectedDay[$0]) }
+                            }
+                        }
+                        .listStyle(PlainListStyle())
+                    }
                 }
             }
-            .navigationTitle("ប្រតិទិន")
+            .navigationTitle(L10n.t("calendar.title"))
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showAdd = true }) { Image(systemName: "plus") }
+                    Button(action: { activeSheet = .add }) { Image(systemName: "plus") }
                 }
             }
-            .sheet(isPresented: $showAdd) {
-                ActivityFormSheet(isPresented: $showAdd, defaultDate: selectedDate, activityTypes: activityTypes)
-                    .environmentObject(vm)
-            }
-            .sheet(isPresented: $showEditSheet, onDismiss: { editingActivity = nil }) {
-                if let act = editingActivity {
-                    ActivityFormSheet(isPresented: $showEditSheet, defaultDate: selectedDate,
-                                     activityTypes: activityTypes, editingActivity: act)
-                    .environmentObject(vm)
+            .sheet(item: $activeSheet) { sheet in
+                switch sheet {
+                case .add:
+                    ActivityFormSheet(defaultDate: selectedDate, activityTypes: activityTypes).environmentObject(vm)
+                case .edit(let act):
+                    ActivityFormSheet(defaultDate: selectedDate, activityTypes: activityTypes, editingActivity: act).environmentObject(vm)
                 }
             }
         }
@@ -95,11 +147,12 @@ struct CalendarTabView: View {
 private struct MonthHeader: View {
     @Binding var displayedMonthDate: Date
     @Binding var selectedDate: Date
+    @AppStorage("appLanguage") private var appLanguage: String = "km"
 
     private var title: String {
         let fmt = DateFormatter()
         fmt.dateFormat = "MMMM yyyy"
-        fmt.locale = Locale(identifier: "km")
+        fmt.locale = Locale(identifier: appLanguage)
         return fmt.string(from: displayedMonthDate)
     }
 
@@ -109,7 +162,7 @@ private struct MonthHeader: View {
                 Image(systemName: "chevron.left").padding(.horizontal, 12)
             }
             Spacer()
-            Text(title).font(.headline)
+            Text(title).font(AppFont.headline())
             Spacer()
             Button(action: { shiftMonth(1) }) {
                 Image(systemName: "chevron.right").padding(.horizontal, 12)
@@ -151,7 +204,7 @@ private struct MonthGridView: View {
         VStack(spacing: 4) {
             HStack(spacing: 0) {
                 ForEach(weekLabels, id: \.self) { label in
-                    Text(label).font(.caption2).foregroundColor(.secondary).frame(maxWidth: .infinity)
+                    Text(label).font(AppFont.caption2()).foregroundColor(.secondary).frame(maxWidth: .infinity)
                 }
             }
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: 4) {
@@ -183,7 +236,7 @@ private struct DayCell: View {
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 2) {
-                Text("\(day)").font(.subheadline).frame(width: 32, height: 32)
+                Text("\(day)").font(AppFont.subheadline()).frame(width: 32, height: 32)
                     .background(Circle().fill(
                         isSelected ? Color("PrimaryGreen") :
                         isToday    ? Color("PrimaryGreen").opacity(0.2) : Color.clear
@@ -211,12 +264,12 @@ private struct ActivityRowCell: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(activity.title ?? "")
-                    .font(.subheadline)
+                    .font(AppFont.subheadline())
                     .strikethrough(activity.isDone)
                     .foregroundColor(activity.isDone ? .secondary : .primary)
-                Text(activity.type ?? "").font(.caption).foregroundColor(.secondary)
+                Text(activity.type ?? "").font(AppFont.caption()).foregroundColor(.secondary)
                 if let notes = activity.notes, !notes.isEmpty {
-                    Text(notes).font(.caption2).foregroundColor(.secondary)
+                    Text(notes).font(AppFont.caption2()).foregroundColor(.secondary)
                 }
             }
             Spacer()
@@ -243,7 +296,8 @@ private struct ActivityRowCell: View {
 
 private struct ActivityFormSheet: View {
     @EnvironmentObject var vm: FarmViewModel
-    @Binding var isPresented: Bool
+    @AppStorage("appLanguage") private var appLanguage: String = "km"
+    @Environment(\.dismiss) private var dismiss
     let activityTypes: [String]
     var editingActivity: FarmActivity?
 
@@ -252,8 +306,7 @@ private struct ActivityFormSheet: View {
     @State private var notes: String
     @State private var date: Date
 
-    init(isPresented: Binding<Bool>, defaultDate: Date, activityTypes: [String], editingActivity: FarmActivity? = nil) {
-        _isPresented = isPresented
+    init(defaultDate: Date, activityTypes: [String], editingActivity: FarmActivity? = nil) {
         self.activityTypes = activityTypes
         self.editingActivity = editingActivity
         let act = editingActivity
@@ -269,8 +322,8 @@ private struct ActivityFormSheet: View {
         NavigationView {
             Form {
                 Section {
-                    TextField("ចំណងជើង", text: $title)
-                    Picker("ប្រភេទ", selection: $selectedType) {
+                    TextField(L10n.t("form.title"), text: $title)
+                    Picker(L10n.t("form.type"), selection: $selectedType) {
                         ForEach(activityTypes, id: \.self) { type in
                             HStack {
                                 Circle().fill(activityTypeColors[type] ?? Color("PrimaryGreen")).frame(width: 8, height: 8)
@@ -279,29 +332,30 @@ private struct ActivityFormSheet: View {
                             .tag(type)
                         }
                     }
-                    DatePicker("កាលបរិច្ឆេទ", selection: $date, displayedComponents: .date)
-                    TextField("កំណត់ចំណាំ", text: $notes)
+                    DatePicker(L10n.t("form.date"), selection: $date, displayedComponents: .date)
+                    TextField(L10n.t("form.note"), text: $notes)
                 }
             }
-            .navigationTitle(editingActivity == nil ? "បន្ថែមសកម្មភាព" : "កែប្រែ")
+            .navigationTitle(editingActivity == nil ? L10n.t("calendar.add") : L10n.t("calendar.edit"))
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("បោះបង់") { isPresented = false }
+                    Button(L10n.t("form.cancel")) { dismiss() }
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("រក្សាទុក") {
+                    Button(L10n.t("form.save")) {
                         let t = title.trimmingCharacters(in: .whitespaces)
                         if let act = editingActivity {
                             vm.updateActivity(act, title: t, type: selectedType, notes: notes, date: date)
                         } else {
                             vm.addActivity(title: t, type: selectedType, notes: notes, date: date)
                         }
-                        isPresented = false
+                        dismiss()
                     }
                     .disabled(!canSave)
                 }
             }
         }
+        .navigationViewStyle(.stack)
     }
 }
 

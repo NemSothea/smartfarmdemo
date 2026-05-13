@@ -4,11 +4,18 @@ import SwiftUI
 struct SmartFarmApp: App {
     let persistenceController = PersistenceController.shared
 
+    init() {
+        AppFont.registerAll()
+        AppFont.applyNavigationBarFont()
+    }
+
     @StateObject private var farmViewModel: FarmViewModel = {
         FarmViewModel(context: PersistenceController.shared.container.viewContext)
     }()
 
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @AppStorage("isDarkMode") private var isDarkMode = false
+    @AppStorage("appLanguage") private var appLanguage: String = "km"
     @State private var splashActive = true
 
     var body: some Scene {
@@ -29,12 +36,17 @@ struct SmartFarmApp: App {
                         .transition(.opacity)
                 }
             }
+            .environment(\.locale, Locale(identifier: appLanguage))
             .animation(.easeInOut(duration: 0.4), value: splashActive)
             .animation(.easeInOut(duration: 0.4), value: hasCompletedOnboarding)
+            .preferredColorScheme(isDarkMode ? .dark : .light)
             .onAppear {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                     splashActive = false
                 }
+            }
+            .onChange(of: appLanguage) { _ in
+                AppFont.applyNavigationBarFont()
             }
         }
     }

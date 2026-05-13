@@ -8,19 +8,17 @@ struct SplashView: View {
         ZStack {
             Color("PrimaryGreen").ignoresSafeArea()
             VStack(spacing: 16) {
-                Circle()
-                    .fill(Color.white.opacity(0.15))
+                Image("SplashLogo")
+                    .resizable()
+                    .scaledToFit()
                     .frame(width: 120, height: 120)
-                    .overlay(
-                        Image(systemName: "leaf.fill")
-                            .font(.system(size: 56))
-                            .foregroundColor(.white)
-                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                    .shadow(color: .black.opacity(0.2), radius: 12, x: 0, y: 6)
                 Text("SmartFarm")
-                    .font(.largeTitle).fontWeight(.bold)
+                    .font(AppFont.bold(size: 32))
                     .foregroundColor(.white)
-                Text("ជំនួយការកសិករ")
-                    .font(.title3)
+                Text("កសិកម្មឆ្លាតវៃ ងាយស្រួល")
+                    .font(AppFont.regular(size: 17))
                     .foregroundColor(.white.opacity(0.85))
             }
             .scaleEffect(scale)

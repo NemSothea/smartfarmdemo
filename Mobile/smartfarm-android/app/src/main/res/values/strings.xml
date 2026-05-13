@@ -9,6 +9,8 @@
     <string name="nav_settings">Settings</string>
 
     <!-- Finance -->
+    <string name="search_placeholder">Search...</string>
+    <string name="no_results">No results found</string>
     <string name="income">Income</string>
     <string name="expense">Expense</string>
     <string name="balance">Balance</string>
@@ -30,10 +32,19 @@
     <string name="no_events_today">No activities today</string>
 
     <!-- Dashboard -->
+    <string name="recent_transactions">Recent Transactions</string>
     <string name="upcoming_events">Upcoming Events (7 days)</string>
     <string name="no_upcoming_events">No upcoming events this week.</string>
 
     <!-- Settings -->
+    <string name="section_appearance">Preferences</string>
+    <string name="theme">Theme</string>
+    <string name="theme_light">☀️ Light</string>
+    <string name="theme_dark">🌙 Dark</string>
+    <string name="clear_all">Clear All Data</string>
+    <string name="clear_all_confirm_title">Clear All Data?</string>
+    <string name="clear_all_confirm_body">All transactions and activities will be deleted. This cannot be undone.</string>
+    <string name="version">SmartFarm · Version 1.0.0</string>
     <string name="section_export">Export</string>
     <string name="export_csv">Export CSV</string>
     <string name="export_csv_sub">All finance records → Excel / Sheets</string>
@@ -64,6 +75,13 @@
     <string name="onboarding_sub_3">All data is stored\non your device</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_start">Get Started</string>
+
+    <!-- Splash -->
+    <string name="splash_tagline">Smart Farm, Easy Life</string>
+    <!-- Language -->
+    <string name="language">Language</string>
+    <string name="lang_khmer">🇰🇭 Khmer</string>
+    <string name="lang_english">🇬🇧 English</string>
 
     <!-- Common -->
     <string name="save">Save</string>

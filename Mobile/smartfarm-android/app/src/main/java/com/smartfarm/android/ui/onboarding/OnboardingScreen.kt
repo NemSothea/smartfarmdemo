@@ -7,9 +7,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.Eco
-import androidx.compose.material.icons.filled.Security
+import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -35,22 +35,22 @@ private val primaryGreen = Color(0xFF2E6E43)
 
 private val pages = listOf(
     OnboardingPage(
-        icon = Icons.Default.Eco,
-        title = "ស្វាគមន៍មកកាន់\nSmartFarm",
-        subtitle = "ជំនួយការគ្រប់គ្រងកសិដ្ឋាន\nសម្រាប់កសិករខ្មែរ",
+        icon = Icons.Default.TrendingUp,
+        title = "តាមដានហិរញ្ញវត្ថុ",
+        subtitle = "កត់ត្រាចំណូល និងចំណាយ\nជា រៀល ឬ ដុល្លារ",
         color = primaryGreen
     ),
     OnboardingPage(
-        icon = Icons.Default.AttachMoney,
-        title = "ហិរញ្ញវត្ថុ & ប្រតិទិន",
-        subtitle = "តាមដានចំណូល ចំណាយ\nនិងសកម្មភាពកសិកម្មប្រចាំថ្ងៃ",
+        icon = Icons.Default.DateRange,
+        title = "គ្រោងសកម្មភាព",
+        subtitle = "កុំភ្លេចការដាំ ឬ ប្រមូលផល\nជាមួយការជូនដំណឹង",
         color = Color(0xFF1565C0)
     ),
     OnboardingPage(
-        icon = Icons.Default.Security,
-        title = "ឯកជន & Offline",
-        subtitle = "ទិន្នន័យទាំងអស់ត្រូវបានរក្សាទុក\nក្នុងឧបករណ៍របស់អ្នក",
-        color = Color(0xFFE65100)
+        icon = Icons.Default.BarChart,
+        title = "រីកចម្រើនជាមួយទិន្នន័យ",
+        subtitle = "របាយការណ៍ប្រចាំខែ\nជួយសម្រេចចិត្ត",
+        color = Color(0xFF6D3E91)
     )
 )
 
