@@ -22,9 +22,13 @@ An offline-first farm-management demo designed for Cambodian small-scale farmers
 
 ### Android (Jetpack Compose)
 
-| Dashboard | Finance | Calendar | Settings |
-|:--:|:--:|:--:|:--:|
-| ![Dashboard](images/DashboardTab_android.png) | ![Finance](images/FinanceTap_android.png) | ![Calendar](images/CalendarTab_android.png) | ![Settings](images/SettingTap_android.png) |
+| Splash | Onboarding | Dashboard |
+|:--:|:--:|:--:|
+| ![Splash](images/Splashscreen_android.png) | ![Onboarding](images/Introscreen_android.png) | ![Dashboard](images/DashboardTab_android.png) |
+
+| Finance | Calendar | Settings |
+|:--:|:--:|:--:|
+| ![Finance](images/FinanceTap_android.png) | ![Calendar](images/CalendarTab_android.png) | ![Settings](images/SettingTap_android.png) |
 
 ---
 

@@ -18,6 +18,10 @@ struct SmartFarmApp: App {
     @AppStorage("appLanguage") private var appLanguage: String = "km"
     @State private var splashActive = true
 
+    private var forceOnboarding: Bool {
+        ProcessInfo.processInfo.arguments.contains("--show-onboarding")
+    }
+
     var body: some Scene {
         WindowGroup {
             ZStack {
@@ -25,7 +29,7 @@ struct SmartFarmApp: App {
                     SplashView()
                         .transition(.opacity)
                         .zIndex(2)
-                } else if !hasCompletedOnboarding {
+                } else if !hasCompletedOnboarding || forceOnboarding {
                     OnboardingView { hasCompletedOnboarding = true }
                         .transition(.opacity)
                         .zIndex(1)
