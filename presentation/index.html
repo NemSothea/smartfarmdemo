@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Engineering for Production Code — SmartFarm</title>
+<style>
+  :root {
+    --green:     #2E6E43;
+    --green-lt:  #6FBE8E;
+    --bg:        #0F1312;
+    --surface:   #171C19;
+    --surface2:  #1E2520;
+    --border:    #2A332E;
+    --text:      #E8EDE9;
+    --muted:     #8FA898;
+    --red:       #E26B5C;
+    --yellow:    #D4A843;
+    --blue:      #5CA8D4;
+    --mono:      'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    --sans:      'Inter', system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    user-select: none;
+  }
+
+  /* ── SLIDES ─────────────────────────────────── */
+  .deck { width: 100%; height: 100%; position: relative; }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    padding: 52px 72px 44px;
+    opacity: 0;
+    transition: opacity .25s ease;
+  }
+  .slide.active {
+    display: flex;
+    opacity: 1;
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  .slide-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 36px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 16px;
+  }
+  .slide-num {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--green-lt);
+    letter-spacing: .08em;
+    min-width: 44px;
+  }
+  .slide-tag {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── TITLES ─────────────────────────────────── */
+  h1 {
+    font-size: clamp(26px, 3.6vw, 46px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -.02em;
+    color: var(--text);
+  }
+  h1 em { font-style: normal; color: var(--green-lt); }
+
+  h2 {
+    font-size: clamp(15px, 1.8vw, 22px);
+    font-weight: 400;
+    color: var(--muted);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  h3 {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--green-lt);
+    margin-bottom: 12px;
+  }
+
+  /* ── BODY ────────────────────────────────────── */
+  .body { flex: 1; display: flex; gap: 40px; align-items: flex-start; }
+  .col  { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+  .col.wide { flex: 1.6; }
+  .col.narrow { flex: .9; }
+
+  p, li {
+    font-size: clamp(13px, 1.3vw, 16px);
+    line-height: 1.7;
+    color: var(--text);
+  }
+  ul { padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+  li::marker { color: var(--green-lt); }
+
+  strong { color: var(--green-lt); font-weight: 600; }
+  .red   { color: var(--red); }
+  .yellow{ color: var(--yellow); }
+  .muted { color: var(--muted); }
+
+  /* ── CODE BLOCKS ─────────────────────────────── */
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 20px;
+    font-family: var(--mono);
+    font-size: clamp(10.5px, 1.05vw, 13px);
+    line-height: 1.65;
+    overflow-x: auto;
+    white-space: pre;
+    tab-size: 2;
+  }
+  pre .c  { color: var(--muted);   font-style: italic; }  /* comment */
+  pre .k  { color: var(--blue); }                         /* keyword */
+  pre .s  { color: var(--yellow); }                       /* string */
+  pre .g  { color: var(--green-lt); }                     /* good */
+  pre .r  { color: var(--red); }                          /* bad */
+  pre .n  { color: var(--text); }                         /* normal */
+  pre .p  { color: var(--muted); }                        /* punctuation */
+
+  .label-good { color: var(--green-lt); font-weight: 700; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+  .label-bad  { color: var(--red);      font-weight: 700; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 4px; }
+
+  /* ── CARDS / PILLS ───────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+  }
+  .card + .card { margin-top: 0; }
+
+  .pill {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .pill-green  { background: rgba(46,110,67,.25);  color: var(--green-lt); border: 1px solid rgba(111,190,142,.3); }
+  .pill-red    { background: rgba(226,107,92,.2);  color: var(--red);      border: 1px solid rgba(226,107,92,.3); }
+  .pill-yellow { background: rgba(212,168,67,.2);  color: var(--yellow);   border: 1px solid rgba(212,168,67,.3); }
+  .pill-blue   { background: rgba(92,168,212,.2);  color: var(--blue);     border: 1px solid rgba(92,168,212,.3); }
+
+  /* ── TABLE ───────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; font-size: clamp(11px, 1.1vw, 14px); }
+  th {
+    text-align: left;
+    padding: 8px 14px;
+    background: var(--surface2);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.025); }
+
+  /* ── NUMBERED STEPS ──────────────────────────── */
+  .steps { display: flex; flex-direction: column; gap: 10px; }
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+  }
+  .step-num {
+    min-width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--green);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-body { font-size: clamp(12px, 1.2vw, 14px); line-height: 1.6; }
+  .step-body strong { color: var(--green-lt); }
+
+  /* ── TITLE SLIDE ─────────────────────────────── */
+  .slide-title {
+    justify-content: center;
+    align-items: flex-start;
+    background:
+      radial-gradient(ellipse 70% 60% at 100% 100%, rgba(46,110,67,.18) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 0% 0%, rgba(46,110,67,.10) 0%, transparent 60%),
+      var(--bg);
+  }
+  .slide-title .title-wrap { max-width: 780px; }
+  .slide-title .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--green-lt);
+    margin-bottom: 20px;
+  }
+  .slide-title h1 { font-size: clamp(32px, 4.5vw, 56px); }
+  .slide-title h2 { font-size: clamp(14px, 1.6vw, 19px); margin-top: 16px; max-width: 620px; }
+  .slide-title .proof {
+    margin-top: 36px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  /* ── HIGHLIGHT BOX ───────────────────────────── */
+  .highlight {
+    background: rgba(46,110,67,.12);
+    border: 1px solid rgba(111,190,142,.3);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: clamp(12px, 1.2vw, 14px);
+    line-height: 1.6;
+    color: var(--green-lt);
+  }
+
+  .callout {
+    background: rgba(212,168,67,.1);
+    border: 1px solid rgba(212,168,67,.3);
+    border-radius: 8px;
+    padding: 14px 18px;
+    font-size: clamp(12px, 1.15vw, 14px);
+    line-height: 1.6;
+    color: var(--yellow);
+  }
+
+  /* ── NAV ─────────────────────────────────────── */
+  #nav {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(23,28,25,.9);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 8px 20px;
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: color .15s;
+  }
+  .nav-btn:hover { color: var(--text); }
+  .nav-btn:disabled { color: var(--border); cursor: default; }
+  #progress {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    min-width: 52px;
+    text-align: center;
+  }
+  .dots { display: flex; gap: 5px; }
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .dot.on { background: var(--green-lt); }
+
+  /* ── GOLDEN RULES (slide 10) ─────────────────── */
+  .rules { display: flex; flex-direction: column; gap: 12px; }
+  .rule {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .rule-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .rule-text { font-size: clamp(12px, 1.2vw, 15px); line-height: 1.55; }
+  .rule-text strong { color: var(--green-lt); }
+
+  /* ── RESPONSIVE COLUMNS ──────────────────────── */
+  @media (max-width: 900px) {
+    .body { flex-direction: column; }
+    .slide { padding: 32px 28px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 1 — TITLE                           -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide slide-title active" data-index="0">
+    <div class="title-wrap">
+      <div class="eyebrow">SmartFarm · Developer Talk</div>
+      <h1>Stop Texting AI.<br><em>Start Engineering</em><br>Your Prompts.</h1>
+      <h2>How I built a full iOS + Android native app with Claude Code —
+        and why <strong>prompt structure</strong> mattered more than the words.</h2>
+      <div class="proof">
+        <span class="pill pill-green">10 Sprints</span>
+        <span class="pill pill-blue">iOS SwiftUI + CoreData</span>
+        <span class="pill pill-blue">Android Compose + Room</span>
+        <span class="pill pill-yellow">1 Developer · Solo</span>
+        <span class="pill pill-green">Production Quality</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 2 — THE CORE PROBLEM                -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide" data-index="1">
+    <div class="slide-header">
+      <span class="slide-num">02 / 10</span>
+      <span class="slide-tag">The Problem</span>
+    </div>
+    <h1>Most developers prompt like they're <em>texting a friend</em></h1>
+    <h2>The AI has no memory of your project, your constraints, or your past decisions.</h2>
+    <div class="body" style="margin-top:28px; flex-direction:column; gap:20px;">
+      <div>
+        <div class="label-bad">❌ Bad prompt</div>
+        <pre><span class="r">"make a finance screen in SwiftUI"</span></pre>
+      </div>
+      <div>
+        <div class="label-good">✅ Good prompt</div>
+        <pre><span class="g">Read .claude/skills/ios.md.</span>
+<span class="n">Build: Views/Finance/FinanceListView.swift
+Data:  FarmViewModel (ViewModels/FarmViewModel.swift)
+Shows: transaction list, balance card, filter chips, bar chart
+Acts:  FAB → AddTransactionSheet, swipe-to-delete</span>
+<span class="g">Constraint: iOS 14 — GeometryReader rects, NOT Swift Charts.
+Output: complete file, no TODOs, no placeholder comments.</span></pre>
+      </div>
+      <div class="callout">
+        The difference is not cleverness — it is <strong>context + constraints + scope</strong>.
+        The bad prompt forces the AI to guess all three.
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 3 — THE 3-LAYER CONTEXT SYSTEM      -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide" data-index="2">
+    <div class="slide-header">
+      <span class="slide-num">03 / 10</span>
+      <span class="slide-tag">Folder Structure</span>
+    </div>
+    <h1>The <em>3-Layer</em> Context System</h1>
+    <h2>Write the rules once. Reference them in every prompt. Never repeat yourself.</h2>
+    <div class="body" style="margin-top:24px;">
+      <div class="col wide">
+        <pre><span class="g">Mobile/</span>
+<span class="n">├── PLAN.md</span>          <span class="c">← what exists, what's done, what's next</span>
+<span class="n">├── FIGMA_BRIEF.md</span>   <span class="c">← design spec (iOS HIG + Material 3)</span>
+<span class="g">└── .claude/</span>
+<span class="g">    ├── memory.md</span>    <span class="c">← project rules, data models, team</span>
+<span class="g">    └── skills/</span>
+<span class="g">        ├── ios.md</span>   <span class="c">← forbidden APIs, patterns, file paths</span>
+<span class="g">        └── android.md</span> <span class="c">← Room, Hilt, Compose patterns</span></pre>
+        <div class="highlight">
+          Claude Code reads these files at session start. Your constraints are loaded automatically —
+          no copy-paste, no repeated explanations, no drift between sessions.
+        </div>
+      </div>
+      <div class="col narrow" style="gap:12px;">
+        <div class="card">
+          <h3>Layer 1 — memory.md</h3>
+          <p>Project identity: data models, shared rules, currency logic, team. <strong>Stable across all sprints.</strong></p>
+        </div>
+        <div class="card">
+          <h3>Layer 2 — skills/*.md</h3>
+          <p>Platform rules: what APIs to use/avoid, architecture patterns, exact file paths. <strong>Grows with each bug you fix.</strong></p>
+        </div>
+        <div class="card">
+          <h3>Layer 3 — PLAN.md</h3>
+          <p>Sprint state: feature matrix, what is done, what is next. <strong>Updated at the end of every session.</strong></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 4 — THE SKILLS FILE                 -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide" data-index="3">
+    <div class="slide-header">
+      <span class="slide-num">04 / 10</span>
+      <span class="slide-tag">Skills File</span>
+    </div>
+    <h1>The Skills File is Your <em>Rule Engine</em></h1>
+    <h2>Forbidden APIs enforce correctness better than any natural-language instruction.</h2>
+    <div class="body" style="margin-top:24px;">
+      <div class="col">
+        <pre><span class="c"># skills/ios.md — real excerpt</span>
+
+<span class="r">## NEVER USE</span>
+<span class="r">- NavigationStack</span>       <span class="c">← iOS 16+ only</span>
+<span class="r">- .searchable()</span>         <span class="c">← iOS 15+ only</span>
+<span class="r">- Charts / Chart {}</span>    <span class="c">← iOS 16+ only</span>
+<span class="r">- #Preview {}</span>          <span class="c">← Xcode 15+ only</span>
+<span class="r">- @Observable</span>           <span class="c">← iOS 17+ only</span>
+<span class="r">- ShareLink</span>             <span class="c">← iOS 16+ only</span>
+<span class="r">- if let x { }</span>         <span class="c">← Swift 5.7+ shorthand</span>
+
+<span class="g">## ALWAYS USE</span>
+<span class="g">- NavigationView + NavigationLink</span>
+<span class="g">- GeometryReader + Rectangle</span>  <span class="c">← for bar charts</span>
+<span class="g">- struct X_Previews: PreviewProvider</span>
+<span class="g">- if let x = x { }</span>    <span class="c">← explicit binding</span>
+<span class="g">- UIActivityViewController</span>  <span class="c">← wrapped in UIViewControllerRepresentable</span></pre>
+      </div>
+      <div class="col" style="gap:16px;">
+        <div class="callout">
+          Without this file, the AI writes modern Swift.<br>
+          Your iOS 14 deployment target <strong>fails to build</strong>.<br><br>
+          With this file, every generated file is deployment-target correct — automatically, every time.
+        </div>
+        <div class="card">
+          <h3>Why a separate file per platform?</h3>
+          <p>iOS and Android idioms are fundamentally different.
+          Mixing them in one file creates ambiguity.
+          <strong>One skill file = one platform = zero confusion.</strong></p>
+        </div>
+        <div class="card">
+          <h3>When do you update it?</h3>
+          <p>Every time a bug traces back to a wrong API choice → add it to NEVER USE.
+          The file gets smarter with every sprint.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 5 — ANATOMY OF A GOOD PROMPT        -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide" data-index="4">
+    <div class="slide-header">
+      <span class="slide-num">05 / 10</span>
+      <span class="slide-tag">Prompt Anatomy</span>
+    </div>
+    <h1>5 Components. <em>Every prompt needs all 5.</em></h1>
+    <div class="body" style="margin-top:20px;">
+      <div class="col wide">
+        <pre><span class="c">[1] REFERENCE</span>
+<span class="g">Read .claude/skills/ios.md and .claude/memory.md.</span>
+
+<span class="c">[2] TARGET FILE</span>
+<span class="n">Build: Views/Calendar/CalendarTabView.swift</span>
+
+<span class="c">[3] DATA SOURCE</span>
+<span class="n">Uses: FarmViewModel (already exists — read ViewModels/FarmViewModel.swift)</span>
+
+<span class="c">[4] FEATURE LIST</span>
+<span class="n">Shows: month grid with dot markers, per-day activity list,
+       done-toggle with strikethrough, swipe-to-delete, add button</span>
+
+<span class="c">[5] CONSTRAINTS + OUTPUT FORMAT</span>
+<span class="g">iOS 14. No NavigationStack. Complete file.
+No TODOs. No // placeholder comments. No force unwrap (!).</span></pre>
+      </div>
+      <div class="col narrow">
+        <table>
+          <thead>
+            <tr><th>Component</th><th>Why it matters</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Reference</strong></td><td>Loads your rule engine — don't repeat, point to it</td></tr>
+            <tr><td><strong>Target file</strong></td><td>AI generates the exact file at the correct path</td></tr>
+            <tr><td><strong>Data source</strong></td><td>Prevents hallucinated ViewModel APIs</td></tr>
+            <tr><td><strong>Feature list</strong></td><td>Scope control — nothing extra, nothing missing</td></tr>
+            <tr><td><strong>Constraints</strong></td><td>Forbidden patterns + output expectations</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 6 — PLAN.MD AS CROSS-SESSION MEMORY -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide" data-index="5">
+    <div class="slide-header">
+      <span class="slide-num">06 / 10</span>
+      <span class="slide-tag">PLAN.md</span>
+    </div>
+    <h1>PLAN.md is Your <em>Memory Across Sessions</em></h1>
+    <h2>The AI forgets everything when the session ends. PLAN.md doesn't.</h2>
+    <div class="body" style="margin-top:24px; flex-direction:column; gap:20px;">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body"><strong>Session start:</strong> "Read PLAN.md. Sprint 5 is done. What is Sprint 6?" — AI picks up exactly where you left off, no summary needed.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body"><strong>Build iOS:</strong> "Build the iOS part of Sprint 6. Follow skills/ios.md." — Full context already loaded from step 1.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body"><strong>Build Android (same session):</strong> "Now build the Android equivalent. Follow skills/android.md." — Shared data models and feature logic are already in context.</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body"><strong>Session end:</strong> "Update PLAN.md — mark Sprint 6 complete. Log any bugs found." — Next session starts from this saved state.</div>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Why build both platforms in one session?</strong>
+        The shared context (data models, UX rules, feature logic) is already warm.
+        Starting a new session costs you 2–3 prompts just to re-establish context.
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 7 — CODE QUALITY INSTRUCTIONS       -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide" data-index="6">
+    <div class="slide-header">
+      <span class="slide-num">07 / 10</span>
+      <span class="slide-tag">Code Quality</span>
+    </div>
+    <h1>4 Instructions That <em>Change Output Quality</em></h1>
+    <h2>Add these to your skills file. They apply to every prompt, forever.</h2>
+    <div class="body" style="margin-top:24px; flex-direction:column; gap:14px;">
+      <div class="card">
+        <h3>1 — Architecture enforcement</h3>
+        <pre><span class="g">"MVVM — all state in ViewModel, zero business logic in Views.
+FarmViewModel owns all CoreData calls. Views only read @Published properties."</span></pre>
+      </div>
+      <div class="card">
+        <h3>2 — No placeholders</h3>
+        <pre><span class="g">"Complete implementation. No // TODO, no // placeholder,
+no fatalError('implement me'), no incomplete switch cases."</span></pre>
+      </div>
+      <div class="card">
+        <h3>3 — Naming consistency</h3>
+        <pre><span class="g">"Match existing naming: FarmActivity not Activity,
+FinanceEntry not Transaction, CalendarTabView not CalendarView."</span></pre>
+      </div>
+      <div class="card">
+        <h3>4 — Safe code</h3>
+        <pre><span class="g">"No force unwrap (!), no try! outside fatalError,
+no as! unless type is compiler-guaranteed."</span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 8 — REAL BUGS, REAL FIXES           -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide" data-index="7">
+    <div class="slide-header">
+      <span class="slide-num">08 / 10</span>
+      <span class="slide-tag">Real Bugs</span>
+    </div>
+    <h1>Real Bugs. Real Fixes. <em>Every bug → one new rule.</em></h1>
+    <h2>Each entry below became a permanent rule in the skills file after it happened once.</h2>
+    <div class="body" style="margin-top:20px;">
+      <table>
+        <thead>
+          <tr><th>Bug</th><th>Root cause</th><th>Rule added to skills file</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="red">NavigationStack used → build fails</span></td>
+            <td>AI defaults to latest iOS APIs</td>
+            <td><strong>NEVER USE: NavigationStack (iOS 16+)</strong></td>
+          </tr>
+          <tr>
+            <td><span class="red">Bar chart bars all same height</span></td>
+            <td>ZStack + .offset() math cancels out</td>
+            <td><strong>Use ZStack(alignment: .topLeading) + .position(x:y:) for bars</strong></td>
+          </tr>
+          <tr>
+            <td><span class="red">Only last .sheet fires</span></td>
+            <td>iOS 14 honors only the final .sheet modifier</td>
+            <td><strong>Use single .sheet(item:) with Identifiable enum</strong></td>
+          </tr>
+          <tr>
+            <td><span class="red">Android FAB hidden behind nav bar</span></td>
+            <td>enableEdgeToEdge + Scaffold padding conflict</td>
+            <td><strong>Always pass innerPadding to Scaffold content lambda</strong></td>
+          </tr>
+          <tr>
+            <td><span class="red">Dashboard shows stale data</span></td>
+            <td>SwiftUI skips re-render when NSManagedObject pointer unchanged</td>
+            <td><strong>Extract primitive values in ForEach — never pass NSManagedObject to sub-views</strong></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="highlight" style="margin-top:16px; width:100%;">
+        The skills file is a living document. The more you build, the stronger your rule engine becomes.
+        By Sprint 10, the AI made <strong>zero</strong> of these mistakes.
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 9 — FULL SESSION LOOP               -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide" data-index="8">
+    <div class="slide-header">
+      <span class="slide-num">09 / 10</span>
+      <span class="slide-tag">Sprint Pattern</span>
+    </div>
+    <h1>The Complete <em>Session Loop</em></h1>
+    <h2>One session = one sprint = both platforms. Repeat 10 times to ship.</h2>
+    <div class="body" style="margin-top:24px; flex-direction:column; gap:14px;">
+      <pre><span class="c">── SESSION START ──────────────────────────────────────────────────────</span>
+
+<span class="k">LOAD CONTEXT</span>
+<span class="g">"Read PLAN.md, .claude/memory.md, .claude/skills/ios.md, .claude/skills/android.md"</span>
+<span class="c">→ AI now has: project state + platform rules + architecture + data models</span>
+
+<span class="c">── BUILD ───────────────────────────────────────────────────────────────</span>
+
+<span class="k">iOS</span>  <span class="g">"Build [feature] for Sprint N. Follow skills/ios.md. Complete file. No TODOs."</span>
+     <span class="c">→ Review, test in simulator</span>
+
+<span class="k">Android</span>  <span class="g">"Now build the Android equivalent. Follow skills/android.md."</span>
+          <span class="c">→ Context (data models, feature logic) already warm — no re-explanation needed</span>
+
+<span class="c">── BUG FOUND ───────────────────────────────────────────────────────────</span>
+
+<span class="k">FIX + ENCODE</span>  <span class="g">"Fix [bug]. Then add the root cause as a rule to skills/ios.md."</span>
+               <span class="c">→ Bug can never happen again</span>
+
+<span class="c">── SESSION END ─────────────────────────────────────────────────────────</span>
+
+<span class="k">SAVE STATE</span>  <span class="g">"Update PLAN.md — mark Sprint N complete. Log any open issues."</span>
+             <span class="c">→ Next session starts from this exact state</span></pre>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════ -->
+  <!-- SLIDE 10 — GOLDEN RULES                   -->
+  <!-- ══════════════════════════════════════════ -->
+  <section class="slide" data-index="9">
+    <div class="slide-header">
+      <span class="slide-num">10 / 10</span>
+      <span class="slide-tag">Summary</span>
+    </div>
+    <h1>The <em>5 Golden Rules</em></h1>
+    <div class="body" style="margin-top:24px; flex-direction:column; gap:0;">
+      <div class="rules">
+        <div class="rule">
+          <div class="rule-icon">📁</div>
+          <div class="rule-text"><strong>Write context once in files — reference it, never repeat it.</strong> memory.md + skills/*.md + PLAN.md are your persistent brain.</div>
+        </div>
+        <div class="rule">
+          <div class="rule-icon">🚫</div>
+          <div class="rule-text"><strong>Forbidden APIs &gt; clever words.</strong> An explicit NEVER USE list enforces constraints better than any natural-language instruction.</div>
+        </div>
+        <div class="rule">
+          <div class="rule-icon">🎯</div>
+          <div class="rule-text"><strong>Name exact files and ViewModels.</strong> Never say "the finance screen." Say <code style="font-family:var(--mono);color:var(--green-lt);">Views/Finance/FinanceListView.swift</code> + <code style="font-family:var(--mono);color:var(--green-lt);">FarmViewModel</code>.</div>
+        </div>
+        <div class="rule">
+          <div class="rule-icon">🧠</div>
+          <div class="rule-text"><strong>PLAN.md is your cross-session memory.</strong> Update it at the end of every sprint — next session starts cold, PLAN.md doesn't.</div>
+        </div>
+        <div class="rule">
+          <div class="rule-icon">🔁</div>
+          <div class="rule-text"><strong>Every bug found = one new rule in skills/*.md.</strong> The system gets smarter with every sprint. By Sprint 10, the same mistake never happens twice.</div>
+        </div>
+      </div>
+      <div class="highlight" style="margin-top:20px; text-align:center; font-size:clamp(13px,1.3vw,16px);">
+        <strong>Prompting is engineering.</strong>
+        Treat it like writing a test spec — not a chat message.
+        The quality of your output is determined by the quality of your context files.
+      </div>
+    </div>
+  </section>
+
+</div><!-- /deck -->
+
+<!-- NAV BAR -->
+<div id="nav">
+  <button class="nav-btn" id="btnPrev" onclick="go(-1)" title="Previous (←)">←</button>
+  <div class="dots" id="dots"></div>
+  <span id="progress">1 / 10</span>
+  <button class="nav-btn" id="btnNext" onclick="go(1)" title="Next (→)">→</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let cur = 0;
+
+  const dots = document.getElementById('dots');
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' on' : '');
+    d.onclick = () => goTo(i);
+    dots.appendChild(d);
+  });
+
+  function goTo(n) {
+    slides[cur].classList.remove('active');
+    dots.children[cur].classList.remove('on');
+    cur = Math.max(0, Math.min(slides.length - 1, n));
+    slides[cur].classList.add('active');
+    dots.children[cur].classList.add('on');
+    document.getElementById('progress').textContent = (cur + 1) + ' / ' + slides.length;
+    document.getElementById('btnPrev').disabled = cur === 0;
+    document.getElementById('btnNext').disabled = cur === slides.length - 1;
+  }
+
+  function go(d) { goTo(cur + d); }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown'  || e.key === ' ') go(1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')                     go(-1);
+    if (e.key === 'Home') goTo(0);
+    if (e.key === 'End')  goTo(slides.length - 1);
+  });
+
+  goTo(0);
+</script>
+</body>
+</html>
