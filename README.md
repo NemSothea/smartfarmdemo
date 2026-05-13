@@ -6,6 +6,8 @@ An offline-first farm-management demo designed for Cambodian small-scale farmers
 
 **Pitch deck:** https://docs.google.com/presentation/d/1n3ROa-Cp5QTVe4Zn2yL60gpJ9mYfBeYU/edit?usp=sharing&ouid=103841083623835396121&rtpof=true&sd=true
 
+**Developer talk — Prompt Engineering for Production Code:** https://htmlpreview.github.io/?https://github.com/NemSothea/smartfarmdemo/blob/main/presentation/index.html
+
 ---
 
 ## Screenshots
